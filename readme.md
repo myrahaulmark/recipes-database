@@ -1,22 +1,10 @@
-Project Charter and Entity Design 
+**Project Charter and Entity Design** 
 
- 
-
-Project Overview 
-
-Briefly describe the project's purpose. 
-
-Project Overview should be very brief (2-3 sentences) that answer the question – “what is this project all about?” 
+ **Project Overview **
 
 In the spirit of the French culinary practice mise en place the primary purpose of this project will be to develop a recipe model that helps users organize and explore recipes with ease, just like the culinary practice of preparing ingredients in advance.  Users can browse, create, and manage recipes, track ingredients, and read or leave reviews. Whether the user is looking for new meal ideas or trying to organize favorite dishes, “La Mise en Place1” will make it simple to discover and share recipes, with a focus on efficiency and good preparation. 
 
-Objectives 
-
-Describe the outcomes of the project. 
-
-
-Objectives define goals for the project.  How are things different when the application is implemented?  What benefit will be realized when this project is complete.  
-
+**Objectives **
 When the site is finished... 
 
 Users will be able to easily search, browse, and filter recipes based on ingredients, dietary preferences, and cooking times. 
@@ -27,13 +15,7 @@ Users will have the ability to leave reviews and ratings, helping others discove
 
 The system will efficiently organize recipes with features like ingredient tracking, allergen alerts, and category sorting, making meal planning easy and intuitive. 
 
- 
-
-Key Stakeholders 
-
-List the primary stakeholders and how they will be impacted by the project 
-
-Stakeholders are people or organizations that benefit from the project or are impacted by the changes that are required to gain the benefit.  Usually, the project team is not a stakeholder unless they are beneficiaries or somehow have a stake in the outcome of the project.  In this case, the customers of the project may be useful to identify as stakeholders. 
+**Key Stakeholders **
 
 Stakeholder Name (or Role Name) 
 
@@ -43,25 +25,11 @@ Dr. Michael Dereszynski
 
  
 
-User community 
+**User community **
 
 We will need to form a ‘focus group’ of key individuals to provide feedback to the team on the ongoing development to ensure the final product is well received 
 
-Project Risks 
-
-Identify the risks that are known or suspected at the beginning of the project. 
-
-Risks identify undesirable outcomes that might happen.  They should be considerate of the things that are unique to the project. 
-
-More interesting and possibly more important are risks that are unique to this project. 
-
-Risks should be stated in terms of “what might happen”, not in terms of constraints.  
-
-Avoid identifying "lazy" risks.  Such as - 'scope creep', 'limited time', 'low priority' or other topics that can be easily mitigated with a bit of effort. 
-
-Build confidence in your investors (your CIO is an investor too!), identify risks that are truly out of control.   
-
-Be prepared to have the risks mitigated for you. 
+**Project Risks **
 
 The API may face security risks, such as unauthorized access or data breaches, especially if sensitive user data (like account information or personal preferences) is stored. Despite best efforts, new vulnerabilities may be discovered, and attacks could exploit weaknesses in the system. 
 
@@ -71,13 +39,7 @@ If the project relies on external services (such as image hosting, external APIs
 
 Long-term risk may include evolving dietary trends: The project might face issues due to rapidly changing dietary trends, such as sudden increases in popularity for certain diets (e.g., keto, plant-based) or new allergen regulations. This could make it challenging to keep the recipe database up to date with relevant content that meets new user expectations or legal requirements. 
 
- 
-
-Key Assumptions 
-
-List any assumptions that were made during the development of the vision statement. 
-
-Key Assumptions include conditions that need to be in place for the project to be a success.  Also, include the constraints on the project, such as availability of budget, resources and time. 
+**Key Assumptions **
 
 Users will contribute to the platform: The project assumes that users will regularly create recipes, leave reviews, and engage with the content, ensuring the platform remains dynamic and useful. 
 
@@ -91,7 +53,7 @@ The ability to have a stable API integration: The API will work seamlessly acros
 
  
 
-Additional Constraints: 
+**Additional Constraints: **
 
 Time: With a set project timeline, the team must prioritize key features and ensure the core functionality is delivered on time, which limits the scope of extra or advanced features. 
 
@@ -99,13 +61,11 @@ Being a two-person team, the development pace is constrained by the available ma
 
 Technology Stack: The project is constrained by the tools and technologies available to the team (e.g., databases, programming languages). Changing or upgrading these tools during development would cause delays and rework. 
 
-Project Scope 
-
-Considering estimated time, cost, and other resources, define the high-level scope of the project. Describe what functionality will be delivered and what won’t be delivered. 
+**Project Scope **
 
 Project Scope defines which functions and features will be delivered, and which features/functions will not be delivered (just as important as the things that are to be delivered).   
 
-Functionality to Be Delivered: 
+**Functionality to Be Delivered: **
 
 Recipe Management System: 
 
@@ -149,7 +109,7 @@ Role-based access control, where only authorized users can edit or delete conten
 
  
 
-Functionality Not to Be Delivered: 
+**Functionality Not to Be Delivered: **
 
 Recipe Suggestions Based on User Preferences: 
 
@@ -179,11 +139,8 @@ The site will not include e-commerce functionality, such as selling premium reci
 
  
 
-Release Plan 
+**Release Plan **
 
-(Optional) Describe how the functions will be prioritized. 
-
-Release plans provide a sense of when the features / functions will be delivered in relative priority.  Having a release plan provides vision beyond the initial stages of the project into future plans.  Another way to represent this information is to show relative times (e.g. now, next, later). 
 
 For the purpose of this project, the release plan is limited to the scope of the course; occurring August through the end of November, 2024. There will be only one release and demonstration. 
 
@@ -201,13 +158,7 @@ Week 16/December 7: Release 1 demo and presentation
 
  
 
-Entity Design 
-
- 
-
-image 
-
-Figure 2.  Entity design for Recipe project 
+**Entity Design **
 
 Recipes: Stores the details of each recipe, including title, description, cooking time, servings, instructions, and an image. This is the core table for the database, representing the recipes users will create and view. 
 
@@ -223,7 +174,7 @@ Users: Stores information about the users of the platform, such as usernames, em
 
 Reviews: Stores the reviews left by users for recipes. Each review includes the user who wrote it, the recipe being reviewed, the rating (1 to 5 stars), the text of the review, and the date of submission. It helps capture user feedback on recipes, enhancing user engagement. 
 
-​​References 
+​**​References **
 
 ​​Use “mise en place” to make meal preparation easier. UNL Food. (2022, March 10). https://food.unl.edu/article/use-mise-en-place-make-meal-preparation-easier  
 
