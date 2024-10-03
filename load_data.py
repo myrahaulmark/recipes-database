@@ -20,7 +20,7 @@ cur = conn.cursor()
 # Create the Categories table (if not already created)
 cur.execute('''
     CREATE TABLE IF NOT EXISTS Categories (
-        CategoryID INTEGER PRIMARY KEY AUTOINCREMENT,
+        CategoryID INTEGER PRIMARY KEY,
         CategoryName TEXT NOT NULL
     )
 ''')
@@ -32,10 +32,17 @@ with open(csv_filename, newline='', encoding='utf-8') as csvfile:
 
     # Insert data into the Categories table
     for row in csv_reader:
-        cur.execute('''
-            INSERT INTO Categories (CategoryName) 
-            VALUES (?)
-        ''', (row[0],))  # Assuming the first column is the CategoryName
+        print(row)  # Print to debug each row
+        try:
+            # Convert CategoryID to integer
+            category_id = int(row[0])  # Assuming the first column is numeric now
+            category_name = row[1]  # CategoryName is the second column
+            cur.execute('''
+                INSERT INTO Categories (CategoryID, CategoryName) 
+                VALUES (?, ?)
+            ''', (category_id, category_name))
+        except ValueError:
+            print(f"Skipping row due to invalid CategoryID: {row}")
 
 # Commit the transaction
 conn.commit()
