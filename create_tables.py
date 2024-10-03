@@ -1,5 +1,3 @@
-#practice committing a change to the repository
-
 import sqlite3
 
 # Connect to the SQLite database (this will create the file 'my_recipes.db')
