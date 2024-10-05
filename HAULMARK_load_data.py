@@ -16,9 +16,6 @@ def load_data(csv_filename, db_filename, table_name, data_types):
     # Manually define data types for each column (this part is still manual)
     columns = {col: data_types.get(col, 'TEXT') for col in headers}
    
-    #DROP the table if it already exists
-    cur.execute("DROP TABLE IF EXISTS Ingredients")
-
     # Create the table if it doesn't exist
     column_defs = ', '.join([f"{col} {dtype}" for col, dtype in columns.items()])
     cur.execute(f'''
