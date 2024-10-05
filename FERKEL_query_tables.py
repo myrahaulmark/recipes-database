@@ -7,8 +7,8 @@ connection = sqlite3.connect('my_recipes.db')
 # Create a cursor object to execute SQL commands
 cursor = connection.cursor()
              
-data = pd.read_sql_query("SELECT * FROM Users", connection)
+data = pd.read_sql_query("SELECT * FROM Recipes WHERE CookingTime = '30'", connection)
 
 print(data)
 
-connection.close()
+#connection.close()
