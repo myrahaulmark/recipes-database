@@ -22,9 +22,7 @@ try:
         NumberOfSteps INTEGER,
         SubmittedDate DATE DEFAULT (datetime('now')),
         NumberOfIngredients INTEGER,
-        ImageURL TEXT,
-        CategoryID INTEGER,
-        FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
+        ImageURL TEXT
     )
     ''')
 
