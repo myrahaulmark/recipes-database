@@ -15,7 +15,7 @@ try:
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS Recipes (
         RecipeID INTEGER PRIMARY KEY AUTOINCREMENT,
-        Title TEXT NOT NULL,
+        Title VARCHAR(500) NOT NULL,
         Description TEXT,
         CookingTime INTEGER,
         Servings INTEGER,

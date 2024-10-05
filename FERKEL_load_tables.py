@@ -20,9 +20,14 @@ data = [
     ('900009', 'Keira', 'McCloskey', 'Keira@gmail.com', '9/24/2024')
 ]
 
+
+
+
+
+
 # Step 4: Insert data into the table
 cursor.executemany('''
-INSERT INTO Users (UserID, FirstName, LastName, Email, JoinDate) VALUES (?, ?, ?, ?, ?)
+INSERT INTO Recipes (RecipeID, Title, Description, CookingTime, Servings, NumberOfSteps, SubmittedDate, NumberOfIngredients, ImageURL) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 ''', data)
 
 # Step 5: Commit the transaction and close the connection
