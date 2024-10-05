@@ -54,20 +54,11 @@ db_filename = data_folder / "my_recipes.db"
 
 # Define table schema for table (adjust this to match your CSV structure)
 data_types = {
-    "RecipeID": "INTEGER PRIMARY KEY",
-    "Title": "TEXT NOT NULL",
-    "Description": "TEXT",
-    "CookingTime": "INTEGER",
-    "Servings": "INTEGER",
-    "NumberOfSteps": "INTEGER",
+    "InstructionID": "INTEGER PRIMARY KEY",
+    "StepCount": "TEXT NOT NULL",
     "Instructions": "TEXT",
-    "Submitted": "DATE DEFAULT (datetime('now'))",
-    "NumberOfIngredients": "INTEGER",
-    "ImageURL": "INTEGER",
-    "CategoryID": "INTEGER",
-    "CategoryID": "INTEGER, FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)"  # Add Foreign Key
-         
+             
 }
 
 # This is the actual call to load the data into the new table
-load_data(data_folder / "Recipes.csv", db_filename, "Recipes", data_types)
+load_data(data_folder / "Instructions.csv", db_filename, "Instructions", data_types)
