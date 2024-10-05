@@ -68,7 +68,7 @@ data_types = {
     "Caffeine": "INTEGER",
     "Source": "TEXT",
     "Date": "TEXT",
-    "IsAllergen": "BOOLEAN",
+    "IsAllergen": "TEXT",
     "Food_allergen_ID": "INTEGER",
     "Food": "TEXT",
     "Food_Class": "TEXT",
