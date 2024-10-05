@@ -16,6 +16,11 @@ def load_data(csv_filename, db_filename, table_name, data_types):
     # Manually define data types for each column (this part is still manual)
     columns = {col: data_types.get(col, 'TEXT') for col in headers}
    
+    # Drop the table if it exists
+    cur.execute(f'''
+        DROP TABLE IF EXISTS {table_name};
+    ''')
+    
     # Create the table if it doesn't exist
     column_defs = ', '.join([f"{col} {dtype}" for col, dtype in columns.items()])
     cur.execute(f'''
@@ -47,32 +52,22 @@ def load_data(csv_filename, db_filename, table_name, data_types):
 data_folder = Path("P:\\MABA\\Seminar\\recipes database")
 db_filename = data_folder / "my_recipes.db"
 
-# Define table schema for Ingredients table (adjust this to match your CSV structure)
+# Define table schema for table (adjust this to match your CSV structure)
 data_types = {
-    "IngredientsID": "INTEGER PRIMARY KEY",
-    "Ingredients": "TEXT NOT NULL",
-    "ServingSize": "INTEGER",
-    "Calories": "INTEGER",
-    "TotalFat": "INTEGER",
-    "SaturatedFat": "INTEGER",
-    "Cholesterol": "INTEGER",
-    "Sodium": "INTEGER",
-    "Carbohydrate": "INTEGER",
-    "Fiber": "INTEGER",
-    "Sugars": "INTEGER",
-    "Protein": "INTEGER",
-    "Fat": "INTEGER",
-    "Caffeine": "INTEGER",
-    "Source": "TEXT",
-    "Date": "TEXT",
-    "IsAllergen": "TEXT",
-    "Food_allergen_ID": "INTEGER",
-    "Food": "TEXT",
-    "Food_Class": "TEXT",
-    "Food_type": "TEXT",
-    "Food_Group": "TEXT",
-    "Allergy_Type": "TEXT"
+    "RecipeID": "INTEGER PRIMARY KEY",
+    "Title": "TEXT NOT NULL",
+    "Description": "TEXT",
+    "CookingTime": "INTEGER",
+    "Servings": "INTEGER",
+    "NumberOfSteps": "INTEGER",
+    "Instructions": "TEXT",
+    "Submitted": "DATE DEFAULT (datetime('now'))",
+    "NumberOfIngredients": "INTEGER",
+    "ImageURL": "INTEGER",
+    "CategoryID": "INTEGER",
+    "CategoryID": "INTEGER, FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)"  # Add Foreign Key
+         
 }
 
-# This is the actual call to load the data into the Ingredients table
-load_data(data_folder / "Ingredients.csv", db_filename, "Ingredients", data_types)
+# This is the actual call to load the data into the new table
+load_data(data_folder / "Recipes.csv", db_filename, "Recipes", data_types)
