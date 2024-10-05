@@ -44,7 +44,7 @@ def load_data(csv_filename, db_filename, table_name, data_types):
 
 # This part goes **outside** the function definition
 # Set the database path
-data_folder = Path("P:\\MABA\\Seminar\\recipes database\\Data_files")
+data_folder = Path("P:\\MABA\\Seminar\\recipes database")
 db_filename = data_folder / "my_recipes.db"
 
 # Define table schema for Ingredients table (adjust this to match your CSV structure)
