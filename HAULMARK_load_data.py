@@ -13,19 +13,20 @@ def load_data(csv_filename, db_filename, table_name, data_types):
         csv_reader = csv.reader(csvfile)
         headers = next(csv_reader)  # Use the header row to define column names
 
-    # Manually define data types for each column (this part is still manual)
+    # Manually define data types for each column (foreign keys must be separate)
     columns = {col: data_types.get(col, 'TEXT') for col in headers}
-   
+
     # Drop the table if it exists
     cur.execute(f'''
         DROP TABLE IF EXISTS {table_name};
     ''')
-    
-    # Create the table if it doesn't exist
+
+    # Create the table with foreign key constraints properly defined
     column_defs = ', '.join([f"{col} {dtype}" for col, dtype in columns.items()])
     cur.execute(f'''
         CREATE TABLE IF NOT EXISTS {table_name} (
-            {column_defs}
+            {column_defs},
+            FOREIGN KEY (RecipeID) REFERENCES Recipes(RecipeID)
         )
     ''')
 
@@ -47,7 +48,6 @@ def load_data(csv_filename, db_filename, table_name, data_types):
     print(f"Data imported successfully from {csv_filename} to the {table_name} table.")
 
 
-# This part goes **outside** the function definition
 # Set the database path
 data_folder = Path("P:\\MABA\\Seminar\\recipes database")
 db_filename = data_folder / "my_recipes.db"
@@ -57,7 +57,7 @@ data_types = {
     "InstructionID": "INTEGER PRIMARY KEY",
     "StepCount": "TEXT NOT NULL",
     "Instructions": "TEXT",
-             
+    "RecipeID": "INTEGER NOT NULL"
 }
 
 # This is the actual call to load the data into the new table
