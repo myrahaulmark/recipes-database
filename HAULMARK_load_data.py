@@ -27,7 +27,7 @@ def load_data(csv_filename, db_filename, table_name, data_types):
         CREATE TABLE IF NOT EXISTS {table_name} (
             {column_defs},
             FOREIGN KEY (RecipeID) REFERENCES Recipes(RecipeID),  -- RecipeID is correct
-            FOREIGN KEY (IngredientsId) REFERENCES Ingredients(IngredientsId)  -- Adjusted to match the case
+            FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)  -- Adjust to match the case if needed
         )
     ''')
 
@@ -55,11 +55,10 @@ db_filename = data_folder / "my_recipes.db"
 
 # Define table schema for Recipe_Ingredients_fact_table (adjust this to match your CSV structure)
 data_types = {
-    "CompID": "VARCHAR PRIMARY KEY",   # Use CompID directly as in the CSV
     "RecipeID": "INTEGER",             # RecipeID is correct
-    "IngredientsId": "INTEGER",        # Still IngredientsID in the fact table
-    "Ingredients": "TEXT"
+    "CategoryID": "INTEGER"   
+    
 }
 
 # This is the actual call to load the data into the new table
-load_data(data_folder / "Recipes_Ingredients_Fact.csv", db_filename, "Recipe_Ingredients_fact_table", data_types)
+load_data(data_folder / "Categories_Recipes_fact_table.csv", db_filename, "Category_Recipe_fact_table", data_types)
