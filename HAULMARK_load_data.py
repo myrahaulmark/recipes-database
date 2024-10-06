@@ -13,19 +13,21 @@ def load_data(csv_filename, db_filename, table_name, data_types):
         csv_reader = csv.reader(csvfile)
         headers = next(csv_reader)  # Use the header row to define column names
 
-    # Manually define data types for each column (this part is still manual)
+    # Manually define data types for each column (foreign keys must be separate)
     columns = {col: data_types.get(col, 'TEXT') for col in headers}
-   
+
     # Drop the table if it exists
     cur.execute(f'''
         DROP TABLE IF EXISTS {table_name};
     ''')
-    
-    # Create the table if it doesn't exist
+
+    # Create the table with foreign key constraints properly defined
     column_defs = ', '.join([f"{col} {dtype}" for col, dtype in columns.items()])
     cur.execute(f'''
         CREATE TABLE IF NOT EXISTS {table_name} (
-            {column_defs}
+            {column_defs},
+            FOREIGN KEY (RecipeID) REFERENCES Recipes(RecipeID),  -- RecipeID is correct
+            FOREIGN KEY (IngredientsId) REFERENCES Ingredients(IngredientsId)  -- Adjusted to match the case
         )
     ''')
 
@@ -47,18 +49,17 @@ def load_data(csv_filename, db_filename, table_name, data_types):
     print(f"Data imported successfully from {csv_filename} to the {table_name} table.")
 
 
-# This part goes **outside** the function definition
 # Set the database path
 data_folder = Path("P:\\MABA\\Seminar\\recipes database")
 db_filename = data_folder / "my_recipes.db"
 
-# Define table schema for table (adjust this to match your CSV structure)
+# Define table schema for Recipe_Ingredients_fact_table (adjust this to match your CSV structure)
 data_types = {
-    "InstructionID": "INTEGER PRIMARY KEY",
-    "StepCount": "TEXT NOT NULL",
-    "Instructions": "TEXT",
-             
+    "CompID": "VARCHAR PRIMARY KEY",   # Use CompID directly as in the CSV
+    "RecipeID": "INTEGER",             # RecipeID is correct
+    "IngredientsId": "INTEGER",        # Still IngredientsID in the fact table
+    "Ingredients": "TEXT"
 }
 
 # This is the actual call to load the data into the new table
-load_data(data_folder / "Category Recipe fact.csv", db_filename, "Category Recipe fact", data_types)
+load_data(data_folder / "Recipes_Ingredients_Fact.csv", db_filename, "Recipe_Ingredients_fact_table", data_types)
