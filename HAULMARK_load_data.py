@@ -26,7 +26,8 @@ def load_data(csv_filename, db_filename, table_name, data_types):
     cur.execute(f'''
         CREATE TABLE IF NOT EXISTS {table_name} (
             {column_defs},
-            FOREIGN KEY (RecipeID) REFERENCES Recipes(RecipeID)
+            FOREIGN KEY (RecipeID) REFERENCES Recipes(RecipeID),  -- RecipeID is correct
+            FOREIGN KEY (IngredientsId) REFERENCES Ingredients(IngredientsId)  -- Adjusted to match the case
         )
     ''')
 
@@ -52,13 +53,13 @@ def load_data(csv_filename, db_filename, table_name, data_types):
 data_folder = Path("P:\\MABA\\Seminar\\recipes database")
 db_filename = data_folder / "my_recipes.db"
 
-# Define table schema for table (adjust this to match your CSV structure)
+# Define table schema for Recipe_Ingredients_fact_table (adjust this to match your CSV structure)
 data_types = {
-    "InstructionID": "INTEGER PRIMARY KEY",
-    "StepCount": "TEXT NOT NULL",
-    "Instructions": "TEXT",
-    "RecipeID": "INTEGER NOT NULL"
+    "CompID": "VARCHAR PRIMARY KEY",   # Use CompID directly as in the CSV
+    "RecipeID": "INTEGER",             # RecipeID is correct
+    "IngredientsId": "INTEGER",        # Still IngredientsID in the fact table
+    "Ingredients": "TEXT"
 }
 
 # This is the actual call to load the data into the new table
-load_data(data_folder / "Instructions.csv", db_filename, "Instructions", data_types)
+load_data(data_folder / "Recipes_Ingredients_Fact.csv", db_filename, "Recipe_Ingredients_fact_table", data_types)
