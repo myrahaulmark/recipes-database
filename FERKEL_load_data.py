@@ -61,4 +61,4 @@ data_types = {
 }
 
 # This is the actual call to load the data into the new table
-load_data(data_folder / "Category Recipe fact.csv", db_filename, "Category Recipe fact", data_types)
+load_data(data_folder / "Category Recipe fact.csv", db_filename, "Recipe_Categories", data_types)
