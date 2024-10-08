@@ -247,3 +247,7 @@ Date
 
 
 git remote add origin https://github.com/myrahaulmark/recipe_db_project.git
+
+Query 1: Users a left join and parameterized inputs to allow the user to pick a recipe to pull ingredients for.
+Query 2: Allows the user to count how many recipes are allergen friendly.
+Query 3: Pulls all the user information.
