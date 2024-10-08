@@ -1,0 +1,6 @@
+﻿ReviewID,Rating,ReviewText,ReviewDate,UserID,RecipeID
+5000000,3,This recipe is okay.,9/12/2024,900000,3000004
+5000001,4,This recipe is great!,9/13/2024,900001,3000005
+5000002,5,I loved this recipe!,9/14/2024,900003,3000006
+5000003,1,This sucks!,9/15/2024,900004,3000007
+5000004,5,This recipe is great!,9/16/2024,900004,3000008
