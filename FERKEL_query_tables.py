@@ -11,4 +11,4 @@ data = pd.read_sql_query("SELECT * FROM Recipes WHERE CookingTime = '30'", conne
 
 print(data)
 
-#connection.close()
+connection.close()
