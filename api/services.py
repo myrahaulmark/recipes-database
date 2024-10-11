@@ -19,6 +19,10 @@ def get_db_connection():
     return connection
 
 # List all recipe categories
+from typing import List
+from api.models import Category  # Assuming Category is defined in models.py
+from api.services import get_db_connection  # Assuming this is the function to establish a DB connection
+
 def get_categories() -> List[Category]:
     """
     Retrieves all categories from the database.
@@ -26,10 +30,15 @@ def get_categories() -> List[Category]:
     Returns:
         List[Category]: A list of Category objects.
     """
+    # Establish a database connection
     connection = get_db_connection()
     cursor = connection.cursor()
+    
+    # Execute the query to fetch categories from the database
     cursor.execute("SELECT * FROM Categories")  # Make sure this matches your actual table name
-    rows = cursor.fetchall()
+    rows = cursor.fetchall()  # Fetch all rows from the query
+    
+    # Close the connection
     connection.close()
 
     # Map rows to Category objects
@@ -37,85 +46,49 @@ def get_categories() -> List[Category]:
     for row in rows:
         # Create a Category object by passing individual fields (assuming the table columns are in order)
         category = Category(
-            CategoryID=row["CategoryID"],  # Or row[0] if row is tuple
-            CategoryName=row["CategoryName"]  # Or row[1] if row is tuple
+            CategoryID=row["CategoryID"],  # Or row[0] if row is a tuple
+            CategoryName=row["CategoryName"]  # Or row[1] if row is a tuple
         )
         categories.append(category)
 
     return categories
 
+
 # # Query the Review table for reviews matching the given RecipeID
-def get_reviews_for_recipe(recipe_id):
-    return session.query(Review).filter(Review.RecipeID == recipe_id).all()
 
-# Call the function to find a recipe with reviews
-recipe_with_reviews = session.query(Recipe.RecipeID).select_from(Recipe).join(Review, Recipe.RecipeID == Review.RecipeID).first()
-
-# If a recipe with reviews exists, query its reviews
-if recipe_with_reviews:
-    recipe_id = recipe_with_reviews.RecipeID
-    reviews = get_reviews_for_recipe(recipe_id)
-
-    if reviews:
-        for review in reviews:
-            print(f"Review: {review.ReviewText}, Rating: {review.Rating}")
-    else:
-        print(f"No reviews found for RecipeID {recipe_id}")
-else:
-    print("No recipes with reviews found.")
-
-def get_average_rating_per_recipe():
-    return session.query(Recipe.RecipeID, Recipe.Title, func.avg(Review.Rating).label('average_rating')).join(
-        Review, Recipe.RecipeID == Review.RecipeID).group_by(Recipe.RecipeID).all()
-
-# call to get the average rating for each recipe
-average_ratings = get_average_rating_per_recipe()
-for recipe_id, title, avg_rating in average_ratings:
-    print(f"Recipe: {title}, Average Rating: {avg_rating}")
-
-
-#Get recipes for a specific category like Salads
-
-def get_top_recipes_in_salads() -> List[Recipe]:
+def get_reviews_for_recipe(recipe_id: int):
     """
-    Retrieves the top 10 recipes in the 'Salads' category, ordered by submission date.
-
-    Returns:
-        List[Recipe]: A list of Recipe objects.
+    Retrieves all reviews for a given recipe by RecipeID.
     """
     connection = get_db_connection()
     cursor = connection.cursor()
     
-    query = """
-        SELECT r.*
-        FROM Recipes r
-        JOIN RecipeCategoryFact rc ON r.RecipeID = rc.RecipeID
-        JOIN Categories c ON rc.CategoryID = c.CategoryID
-        WHERE c.CategoryName = ?
-        ORDER BY r.SubmittedDate DESC
-        LIMIT 10;
-    """
-    
-    cursor.execute(query, ('Salads',))  # 'Salads' is passed as a parameter to prevent SQL injection
-    rows = cursor.fetchall()
+    # Fetch reviews for the given RecipeID
+    cursor.execute("SELECT * FROM Reviews WHERE RecipeID = ?", (recipe_id,))
+    reviews = cursor.fetchall()
     connection.close()
     
-    # Map rows to Recipe objects
-    recipes = []
-    for row in rows:
-        recipe = Recipe(
-            RecipeID=row["RecipeID"],  # or row[0] if row is a tuple
-            Title=row["Title"],
-            Description=row["Description"],
-            CookingTime=row["CookingTime"],
-            Servings=row["Servings"],
-            NumberOfSteps=row["NumberOfSteps"],
-            Instructions=row["Instructions"],
-            SubmittedDate=row["SubmittedDate"],
-            NumberOfIngredients=row["NumberOfIngredients"],
-            ImageURL=row["ImageURL"]
-        )
-        recipes.append(recipe)
-    
-    return recipes
+    return reviews
+
+#Number of recipes avaialble in each category
+def get_recipe_count_by_category():
+    """
+    Retrieves the count of recipes in each category.
+    """
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    # Execute the query to count recipes by category
+    cursor.execute("""
+        SELECT Categories.CategoryName, COUNT(Recipes.RecipeID) AS recipe_count
+        FROM Recipes
+        JOIN Category_Recipe_fact_table ON Recipes.RecipeID = Category_Recipe_fact_table.RecipeID
+        JOIN Categories ON Category_Recipe_fact_table.CategoryID = Categories.CategoryID
+        GROUP BY Categories.CategoryName;
+    """)
+    results = cursor.fetchall()
+    connection.close()
+
+    return results
+
 
