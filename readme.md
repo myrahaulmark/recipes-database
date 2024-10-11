@@ -1,6 +1,6 @@
-#Recipes Database
+# Recipes Database
 
- ##Project Overview
+ ## Project Overview
 
 In the spirit of the French culinary practice mise en place the primary purpose of this project will be to develop a recipe model that helps users organize and explore recipes with ease, just like the culinary practice of preparing ingredients in advance.  Users can browse, create, and manage recipes, track ingredients, and read or leave reviews. Whether the user is looking for new meal ideas or trying to organize favorite dishes, “La Mise en Place1” will make it simple to discover and share recipes, with a focus on efficiency and good preparation. 
 
@@ -43,6 +43,7 @@ The api will be accessible at (TBD))
 ## Documentation
 There is also an [API Documentation]() document that describes how to use the API. (TBD)
 A [Data Dictionary](docs/Data_dictionary.md) document is also available that describes the fields in the database.
+A [list of tables](docs/Diagram.md) is also available.
 
 
 ### Recommended Responsibilities for Each File:
