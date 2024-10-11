@@ -18,6 +18,7 @@ def get_db_connection():
     connection.row_factory = sqlite3.Row  # This allows you to access columns by name
     return connection
 
+# List all recipe categories
 def get_categories() -> List[Category]:
     """
     Retrieves all categories from the database.
@@ -43,8 +44,8 @@ def get_categories() -> List[Category]:
 
     return categories
 
+# # Query the Review table for reviews matching the given RecipeID
 def get_reviews_for_recipe(recipe_id):
-    # Query the Review table for reviews matching the given RecipeID
     return session.query(Review).filter(Review.RecipeID == recipe_id).all()
 
 # Call the function to find a recipe with reviews
@@ -73,4 +74,48 @@ for recipe_id, title, avg_rating in average_ratings:
     print(f"Recipe: {title}, Average Rating: {avg_rating}")
 
 
+#Get recipes for a specific category like Salads
+
+def get_top_recipes_in_salads() -> List[Recipe]:
+    """
+    Retrieves the top 10 recipes in the 'Salads' category, ordered by submission date.
+
+    Returns:
+        List[Recipe]: A list of Recipe objects.
+    """
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = """
+        SELECT r.*
+        FROM Recipes r
+        JOIN RecipeCategoryFact rc ON r.RecipeID = rc.RecipeID
+        JOIN Categories c ON rc.CategoryID = c.CategoryID
+        WHERE c.CategoryName = ?
+        ORDER BY r.SubmittedDate DESC
+        LIMIT 10;
+    """
+    
+    cursor.execute(query, ('Salads',))  # 'Salads' is passed as a parameter to prevent SQL injection
+    rows = cursor.fetchall()
+    connection.close()
+    
+    # Map rows to Recipe objects
+    recipes = []
+    for row in rows:
+        recipe = Recipe(
+            RecipeID=row["RecipeID"],  # or row[0] if row is a tuple
+            Title=row["Title"],
+            Description=row["Description"],
+            CookingTime=row["CookingTime"],
+            Servings=row["Servings"],
+            NumberOfSteps=row["NumberOfSteps"],
+            Instructions=row["Instructions"],
+            SubmittedDate=row["SubmittedDate"],
+            NumberOfIngredients=row["NumberOfIngredients"],
+            ImageURL=row["ImageURL"]
+        )
+        recipes.append(recipe)
+    
+    return recipes
 
