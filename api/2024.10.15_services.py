@@ -104,9 +104,63 @@ def get_users():
     results = cursor.fetchall()
     connection.close()
 
-    for row in results:
-        print(dict(row))
+#    for row in results:
+#        print(dict(row))
 
     return results
 
 get_users()
+
+'''
+def get_instructions_for_recipe():
+    """
+    Retrieves the instructions for a given recipe by recipe name.
+    """
+    recipe_name = input("Enter the recipe name: ")
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    query = """
+        SELECT I.StepCount, I.Instructions
+        FROM Instructions I
+        LEFT JOIN Recipes R on I.RecipeID = R.RecipeID
+        WHERE R.Title = ?
+    """
+    Query1 = pd.read_sql_query(query, connection, params=(recipe_name,))
+    connection.close()
+    if Query1.empty:
+        print(f"No records found for recipe: {recipe_name}.") #I cannot add the recipe name in the output window
+    else:
+        print(Query1)
+    return Query1
+
+
+# Call the function
+get_instructions_for_recipe()
+'''
+
+def count_allergens():
+    """
+    Counts allergens.
+    """
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    cursor.execute('''
+        SELECT Count(IngredientsID) as count, IsAllergen
+        FROM Ingredients
+        GROUP BY IsAllergen
+    ''')
+    
+    results = cursor.fetchall()
+    connection.close()
+    
+    if results:
+        for row in results:
+            print(dict(row))
+    else:
+        print("No results found.")
+    
+    return results
+
+count_allergens()
+
