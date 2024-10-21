@@ -28,6 +28,6 @@ def get_recipe_count_by_category_test():
 
 
 # Call the test functions
-get_recipe_count_by_category_test()
 get_db_connection_test()
+get_recipe_count_by_category_test()
 get_categories_test()
