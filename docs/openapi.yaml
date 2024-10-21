@@ -1,0 +1,157 @@
+openapi: 3.0.0
+info:
+  title: Recipe Database API
+  description: API for managing recipes, users, ingredients, and categories.
+  version: "1.0.0"
+
+servers:
+  - url: http://localhost:5000/api
+    description: Local server
+
+paths:
+  /users:
+    get:
+      summary: Get all users
+      tags:
+        - Users
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    username:
+                      type: string
+                      example: jane_doe
+                    email:
+                      type: string
+                      example: jane.doe@example.com
+    post:
+      summary: Add a new user
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: john_doe
+                email:
+                  type: string
+                  example: john.doe@example.com
+      responses:
+        '201':
+          description: User created successfully
+        '400':
+          description: Invalid input
+
+  /recipes:
+    get:
+      summary: Get all recipes
+      tags:
+        - Recipes
+      responses:
+        '200':
+          description: A list of recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    recipe_id:
+                      type: integer
+                      example: 1
+                    title:
+                      type: string
+                      example: Spaghetti Bolognese
+                    description:
+                      type: string
+                      example: A classic Italian pasta dish...
+                    cooking_time:
+                      type: integer
+                      example: 30
+                    servings:
+                      type: integer
+                      example: 4
+    post:
+      summary: Add a new recipe
+      tags:
+        - Recipes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Tacos
+                description:
+                  type: string
+                  example: A delicious Mexican dish.
+                cooking_time:
+                  type: integer
+                  example: 15
+                servings:
+                  type: integer
+                  example: 2
+      responses:
+        '201':
+          description: Recipe created successfully
+        '400':
+          description: Invalid input
+
+  /ingredients:
+    get:
+      summary: Get all ingredients
+      tags:
+        - Ingredients
+      responses:
+        '200':
+          description: A list of ingredients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    ingredient_id:
+                      type: integer
+                      example: 1
+                    name:
+                      type: string
+                      example: Tomato
+    post:
+      summary: Add a new ingredient
+      tags:
+        - Ingredients
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Garlic
+      responses:
+        '201':
+          description: Ingredient created successfully
+        '400':
+          description: Invalid input
