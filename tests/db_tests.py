@@ -5,7 +5,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Import the necessary modules from api.services
-from api.services2 import get_db_connection, get_categories, get_recipe_count_by_category
+from api.services import get_db_connection, get_categories, get_recipe_count_by_category
 
 def get_db_connection_test():
     cnn = get_db_connection()
