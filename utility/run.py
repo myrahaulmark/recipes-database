@@ -1,10 +1,14 @@
+import sys
+import os
+# Add the absolute path to the `api` folder manually
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'api')))
+
+
 from flask import Flask
 from flasgger import Swagger # Only required if you want to use Swagger UI
 import yaml
 from api.routes import api_bp
 from pathlib import Path
-import sys
-sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 # Using Blueprints to organize routes in a Flask application
 # https://flask.palletsprojects.com/en/2.0.x/blueprints/
@@ -37,7 +41,7 @@ def create_app():
 
     return app
 
-
 if __name__ == "__main__":
     app = create_app()
     app.run(debug=True, host="0.0.0.0", port=5000)
+

@@ -38,7 +38,8 @@ def test_connection():
 # Recipes
 # ---------------------------------------------------------
 # GET route to fetch all recipes with a limit
-@api.route('/recipes', methods=['GET'])
+@api_bp.route('/recipes', methods=['GET'])  # Corrected
+
 
 def get_recipes():
     limit = request.args.get('limit', default=10, type=int)
