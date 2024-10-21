@@ -3,6 +3,8 @@ from flasgger import Swagger # Only required if you want to use Swagger UI
 import yaml
 from api.routes import api_bp
 from pathlib import Path
+import sys
+sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 # Using Blueprints to organize routes in a Flask application
 # https://flask.palletsprojects.com/en/2.0.x/blueprints/
