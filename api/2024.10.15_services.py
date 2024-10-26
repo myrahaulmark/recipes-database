@@ -162,5 +162,5 @@ def count_allergens():
     
     return results
 
-count_allergens()
+count_allergens() #Counts allergens
 
