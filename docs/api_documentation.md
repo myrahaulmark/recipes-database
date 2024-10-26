@@ -271,7 +271,7 @@ The base URL for all the routes is `/api`.
 - **Response**:
   - `200 OK`: List of instructions for the recipe.
 
-### Add New Instruction for a Recipe
+### Add New Instructions for a Recipe
 
 - **URL**: `/recipes/{recipe_id}/instructions`
 - **Method**: `POST`
