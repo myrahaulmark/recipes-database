@@ -2,11 +2,11 @@ import sqlite3
 from api.models import User, Category, Recipe, Ingredient, RecipeCategoryFact, RecipeIngredientsFact, Review, Instruction
 from typing import List
 from pathlib import Path
-import pandas as pd
 
 def get_db_connection():
     """
     Establishes and returns a connection to the SQLite database.
+
     The connection uses 'data/my_recipes.db' as the database file and sets the
     row factory to sqlite3.Row, allowing access to columns by name.
 
@@ -14,12 +14,14 @@ def get_db_connection():
         sqlite3.Connection: A connection object to the SQLite database.
     """
     DATABASE_PATH = Path(__file__).parents[1] / "data"
-    connection = sqlite3.connect(DATABASE_PATH / 'my_recipes.db')
+    connection = sqlite3.connect(DATABASE_PATH/'my_recipes.db')
     connection.row_factory = sqlite3.Row  # This allows you to access columns by name
     return connection
 
 # List all recipe categories
-from models import Category  # Assuming Category is defined in models.py
+from typing import List
+from api.models import Category  # Assuming Category is defined in models.py
+from api.services import get_db_connection  # Assuming this is the function to establish a DB connection
 
 def get_categories() -> List[Category]:
     """
@@ -50,6 +52,7 @@ def get_categories() -> List[Category]:
         categories.append(category)
 
     return categories
+
 
 # # Query the Review table for reviews matching the given RecipeID
 
@@ -87,79 +90,3 @@ def get_recipe_count_by_category():
     connection.close()
 
     return results
-
-
-#pull the full list of users
-def get_users():
-    """
-    Retrieves the full list of users.
-    """
-    connection = get_db_connection()
-    cursor = connection.cursor()
-
-    # Execute the query to show all users
-    cursor.execute("""
-        SELECT * FROM Users
-    """)
-    results = cursor.fetchall()
-    connection.close()
-
-#    for row in results:
-#        print(dict(row))
-
-    return results
-
-get_users()
-
-
-def get_instructions_for_recipe():
-    """
-    Retrieves the instructions for a given recipe by recipe name.
-    """
-    recipe_name = input("Enter the recipe name: ")
-    connection = get_db_connection()
-    cursor = connection.cursor()
-    query = """
-        SELECT I.StepCount, I.Instructions
-        FROM Instructions I
-        LEFT JOIN Recipes R on I.RecipeID = R.RecipeID
-        WHERE R.Title = ?
-    """
-    Query1 = pd.read_sql_query(query, connection, params=(recipe_name,))
-    connection.close()
-    if Query1.empty:
-        print(f"No records found for recipe: {recipe_name}.") #I cannot add the recipe name in the output window
-    else:
-        print(Query1)
-    return Query1
-
-
-# Call the function
-get_instructions_for_recipe()
-
-
-def count_allergens():
-    """
-    Counts allergens.
-    """
-    connection = get_db_connection()
-    cursor = connection.cursor()
-    
-    cursor.execute('''
-        SELECT Count(IngredientsID) as count, IsAllergen
-        FROM Ingredients
-        GROUP BY IsAllergen
-    ''')
-    
-    results = cursor.fetchall()
-    connection.close()
-    
-    if results:
-        for row in results:
-            print(dict(row))
-    else:
-        print("No results found.")
-    
-    return results
-
-count_allergens() #Counts allergens
