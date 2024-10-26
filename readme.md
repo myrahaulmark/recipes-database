@@ -41,7 +41,7 @@ The api will be accessible at (TBD))
 - View all recipes in a category
 
 ## Documentation
-There is also an [API Documentation]() document that describes how to use the API. (TBD)
+There is also an [API Documentation](docs/api_documentation.md) document that describes how to use the API. (TBD)
 A [Data Dictionary](docs/Data_dictionary.md) document is also available that describes the fields in the database.
 A [list of tables](docs/Diagram.md) is also available.
 
