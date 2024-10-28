@@ -1,12 +1,12 @@
-openapi: 3.0.0
+swagger: "2.0"
 info:
-  title: Recipe Database API
-  description: API for managing recipes, users, ingredients, and categories.
+  title: "Recipe Database API"
+  description: "A recipe database for beginners"
   version: "1.0.0"
-
-servers:
-  - url: http://localhost:5000/api
-    description: Local server
+host: "localhost:5000"
+basePath: "/api"
+schemes:
+  - "http"
 
 paths:
   /users:
@@ -155,3 +155,4 @@ paths:
           description: Ingredient created successfully
         '400':
           description: Invalid input
+

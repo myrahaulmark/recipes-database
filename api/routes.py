@@ -33,6 +33,13 @@ def test_connection():
 # ---------------------------------------------------------
 # Categories
 # ---------------------------------------------------------
+# GET route to fetch all recipe categories with no limit
+@api_bp.route('/categories', methods=['GET'])  # we want all categories, so no limit is needed
+
+def get_categories():
+    categories = Category.query.all()
+    return jsonify(categories)
+
 
 # ---------------------------------------------------------
 # Recipes

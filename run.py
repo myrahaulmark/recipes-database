@@ -1,10 +1,5 @@
-import sys
-import os
-# Add the absolute path to the `api` folder manually
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'api')))
-
-
 from flask import Flask
+from flask_cors import CORS
 from flasgger import Swagger # Only required if you want to use Swagger UI
 import yaml
 from api.routes import api_bp
@@ -22,26 +17,25 @@ from pathlib import Path
 #  "/users" will be accessible at "/api/users" in the application.
 
 
+from flask import Flask
+from flask_cors import CORS
+from flasgger import Swagger
+from pathlib import Path
+
 def create_app():
     app = Flask(__name__)
+    CORS(app)
 
-    # If you have provided an openapi.yaml file in the docs folder, load it
-    # This will allow you to use Swagger UI to view and test your API endpoints
-    #  Run the app and go to http://localhost:5000/apidocs to view the Swagger UI
-    # Load OpenAPI specification from YAML file
-    if Path.exists(Path("docs/openapi.yaml")):
-        with open("docs/openapi.yaml", "r") as file:
-            openapi_spec = yaml.safe_load(file)
+    app.config['SWAGGER'] = {
+        'title': 'Recipe API',
+        'uiversion': 2
+    }
 
-        # Initialize Swagger with the OpenAPI spec
-        swagger = Swagger(app, template=openapi_spec)
-
-    # Register Blueprints
-    app.register_blueprint(api_bp, url_prefix="/api")
+    # Point to the minimal yaml file
+    swagger = Swagger(app, template_file="docs/openapi.yaml")
 
     return app
 
 if __name__ == "__main__":
     app = create_app()
     app.run(debug=True, host="0.0.0.0", port=5000)
-
