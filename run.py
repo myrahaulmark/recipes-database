@@ -26,13 +26,19 @@ def create_app():
     app = Flask(__name__)
     CORS(app)
 
-    app.config['SWAGGER'] = {
-        'title': 'Recipe API',
-        'uiversion': 2
-    }
+    # If you have provided an openapi.yaml file in the docs folder, load it
+    # This will allow you to use Swagger UI to view and test your API endpoints
+    #  Run the app and go to http://localhost:5000/apidocs to view the Swagger UI
+    # Load OpenAPI specification from YAML file
+    if Path.exists(Path("docs/openapi.yaml")):
+        with open("docs/openapi.yaml", "r") as file:
+            openapi_spec = yaml.safe_load(file)
 
-    # Point to the minimal yaml file
-    swagger = Swagger(app, template_file="docs/openapi.yaml")
+        # Initialize Swagger with the OpenAPI spec
+        swagger = Swagger(app, template=openapi_spec)
+
+    # Register Blueprints
+    app.register_blueprint(api_bp, url_prefix="/api")
 
     return app
 
