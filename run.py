@@ -1,10 +1,5 @@
-import sys
-import os
-# Add the absolute path to the `api` folder manually
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'api')))
-
-
 from flask import Flask
+from flask_cors import CORS
 from flasgger import Swagger # Only required if you want to use Swagger UI
 import yaml
 from api.routes import api_bp
@@ -22,8 +17,14 @@ from pathlib import Path
 #  "/users" will be accessible at "/api/users" in the application.
 
 
+from flask import Flask
+from flask_cors import CORS
+from flasgger import Swagger
+from pathlib import Path
+
 def create_app():
     app = Flask(__name__)
+    CORS(app)
 
     # If you have provided an openapi.yaml file in the docs folder, load it
     # This will allow you to use Swagger UI to view and test your API endpoints
@@ -44,4 +45,3 @@ def create_app():
 if __name__ == "__main__":
     app = create_app()
     app.run(debug=True, host="0.0.0.0", port=5000)
-

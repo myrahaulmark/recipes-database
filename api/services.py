@@ -18,38 +18,42 @@ def get_db_connection():
     connection.row_factory = sqlite3.Row  # This allows you to access columns by name
     return connection
 
-# List all recipe categories
-from typing import List
-from api.models import Category  # Assuming Category is defined in models.py
-from api.services import get_db_connection  # Assuming this is the function to establish a DB connection
+# Get a limited number of recipes -10
+def get_limited_recipes(limit=10):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM Recipes LIMIT ?", (limit,))
+    return cursor.fetchall()
 
-def get_categories() -> List[Category]:
+
+# Get all categories
+def get_categories() -> List[dict]:
     """
     Retrieves all categories from the database.
 
     Returns:
-        List[Category]: A list of Category objects.
+        List[dict]: A list of dictionaries representing categories.
     """
     # Establish a database connection
     connection = get_db_connection()
     cursor = connection.cursor()
     
     # Execute the query to fetch categories from the database
-    cursor.execute("SELECT * FROM Categories")  # Make sure this matches your actual table name
+    cursor.execute("SELECT CategoryID, CategoryName FROM Categories")  # Ensure this matches your actual table name
     rows = cursor.fetchall()  # Fetch all rows from the query
     
-    # Close the connection
-    connection.close()
-
     # Map rows to Category objects
     categories = []
     for row in rows:
         # Create a Category object by passing individual fields (assuming the table columns are in order)
         category = Category(
-            CategoryID=row["CategoryID"],  # Or row[0] if row is a tuple
-            CategoryName=row["CategoryName"]  # Or row[1] if row is a tuple
+            CategoryID=row["CategoryID"],
+            CategoryName=row["CategoryName"]
         )
-        categories.append(category)
+        categories.append(category.to_dict())  # Use to_dict() for JSON compatibility
+
+    # Close the connection
+    connection.close()
 
     return categories
 
@@ -70,7 +74,7 @@ def get_reviews_for_recipe(recipe_id: int):
     
     return reviews
 
-#Number of recipes avaialble in each category
+#Number of recipes available in each category
 def get_recipe_count_by_category():
     """
     Retrieves the count of recipes in each category.
@@ -90,3 +94,63 @@ def get_recipe_count_by_category():
     connection.close()
 
     return results
+
+# Get all users
+def get_all_users():
+    """
+    Retrieve all users from the database.
+    
+    Returns:
+        list: A list of dictionaries containing user data.
+    """
+    connection = get_db_connection()  # Use the connection function for consistency
+    cursor = connection.cursor()
+    
+    # Adjusted to match the actual field names in your database
+    cursor.execute("SELECT UserID, FirstName, LastName, Email, JoinDate FROM users")
+    rows = cursor.fetchall()
+    
+    # Convert the data to a list of dictionaries
+    user_list = [
+        {
+            "UserID": row["UserID"],
+            "FirstName": row["FirstName"],
+            "LastName": row["LastName"],
+            "Email": row["Email"],
+            "JoinDate": row["JoinDate"]
+        }
+        for row in rows
+    ]
+    
+    connection.close()
+    return user_list
+
+
+def get_users_by_name(name, starts_with=True):
+    """
+    Retrieve users filtered by name. Can either filter users by names that
+    start with the provided string or contain the provided string.
+
+    Args:
+        name (str): The string to filter names by.
+        starts_with (bool): If True, filter by names that start with 'name'.
+                            If False, filter by names that contain 'name'.
+
+    Returns:
+        list: A list of dictionaries containing user data.
+    """
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    if starts_with:
+        query = "SELECT id, username, email FROM users WHERE username LIKE ?"
+        cursor.execute(query, (f"{name}%",))
+    else:
+        query = "SELECT id, username, email FROM users WHERE username LIKE ?"
+        cursor.execute(query, (f"%{name}%",))
+    
+    rows = cursor.fetchall()
+    user_list = [{"id": row[0], "username": row[1], "email": row[2]} for row in rows]
+    
+    connection.close()
+    return user_list

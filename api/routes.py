@@ -27,24 +27,24 @@ def test_connection():
     return "Connection successful!"
 
 # ---------------------------------------------------------
-# Users
-# ---------------------------------------------------------
-
-# ---------------------------------------------------------
 # Categories
 # ---------------------------------------------------------
+# GET route to fetch all recipe categories with no limit
+@api_bp.route("/categories", methods=["GET"])
+def get_categories_endpoint():
+    """
+    Retrieve all recipe categories.
+    
+    Returns:
+        tuple: JSON response containing categories and HTTP status code 200.
+    """
+    categories = services.get_categories()  # Call the service function to get categories
+    return jsonify(categories), 200
+
 
 # ---------------------------------------------------------
 # Recipes
 # ---------------------------------------------------------
-# GET route to fetch all recipes with a limit
-@api_bp.route('/recipes', methods=['GET'])  # Corrected
-
-
-def get_recipes():
-    limit = request.args.get('limit', default=10, type=int)
-    return jsonify(recipes[:limit])
-
 
 # ---------------------------------------------------------
 # Ingredients
@@ -56,4 +56,8 @@ def get_recipes():
 
 # ---------------------------------------------------------
 # Instructions
+# ---------------------------------------------------------
+
+# ---------------------------------------------------------
+# Users
 # ---------------------------------------------------------
