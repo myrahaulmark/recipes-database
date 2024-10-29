@@ -5,12 +5,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Import the necessary modules from api.services
-from api.services import get_db_connection, get_categories, get_recipe_count_by_category
-
-def get_db_connection_test():
-    cnn = get_db_connection()
-    print(cnn)
-
+from api.services import get_categories, get_recipe_count_by_category, get_all_users
 
 def get_categories_test():
     categories = get_categories()
@@ -26,8 +21,20 @@ def get_recipe_count_by_category_test():
         category_name, recipe_count = row['CategoryName'], row['recipe_count']
         print(f"Category: {category_name}, Number of Recipes: {recipe_count}")
 
+def get_all_users_test():
+    print("Testing get_all_users function...")
+    users = get_all_users()
+    if users:
+        print("Users found:")
+        print(users)
+    else:
+        print("No users found or there was an issue retrieving data.")
+
+
+
 
 # Call the test functions
-get_db_connection_test()
-get_recipe_count_by_category_test()
-get_categories_test()
+if __name__ == "__main__":
+    get_recipe_count_by_category_test()
+    get_categories_test()
+    

@@ -2,11 +2,11 @@ import sqlite3
 from api.models import User, Category, Recipe, Ingredient, RecipeCategoryFact, RecipeIngredientsFact, Review, Instruction
 from typing import List
 from pathlib import Path
-import pandas as pd
 
 def get_db_connection():
     """
     Establishes and returns a connection to the SQLite database.
+
     The connection uses 'data/my_recipes.db' as the database file and sets the
     row factory to sqlite3.Row, allowing access to columns by name.
 
@@ -14,42 +14,49 @@ def get_db_connection():
         sqlite3.Connection: A connection object to the SQLite database.
     """
     DATABASE_PATH = Path(__file__).parents[1] / "data"
-    connection = sqlite3.connect(DATABASE_PATH / 'my_recipes.db')
+    connection = sqlite3.connect(DATABASE_PATH/'my_recipes.db')
     connection.row_factory = sqlite3.Row  # This allows you to access columns by name
     return connection
 
-# List all recipe categories
-from models import Category  # Assuming Category is defined in models.py
+# Get a limited number of recipes -10
+def get_limited_recipes(limit=10):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM Recipes LIMIT ?", (limit,))
+    return cursor.fetchall()
 
-def get_categories() -> List[Category]:
+
+# Get all categories
+def get_categories() -> List[dict]:
     """
     Retrieves all categories from the database.
 
     Returns:
-        List[Category]: A list of Category objects.
+        List[dict]: A list of dictionaries representing categories.
     """
     # Establish a database connection
     connection = get_db_connection()
     cursor = connection.cursor()
     
     # Execute the query to fetch categories from the database
-    cursor.execute("SELECT * FROM Categories")  # Make sure this matches your actual table name
+    cursor.execute("SELECT CategoryID, CategoryName FROM Categories")  # Ensure this matches your actual table name
     rows = cursor.fetchall()  # Fetch all rows from the query
     
-    # Close the connection
-    connection.close()
-
     # Map rows to Category objects
     categories = []
     for row in rows:
         # Create a Category object by passing individual fields (assuming the table columns are in order)
         category = Category(
-            CategoryID=row["CategoryID"],  # Or row[0] if row is a tuple
-            CategoryName=row["CategoryName"]  # Or row[1] if row is a tuple
+            CategoryID=row["CategoryID"],
+            CategoryName=row["CategoryName"]
         )
-        categories.append(category)
+        categories.append(category.to_dict())  # Use to_dict() for JSON compatibility
+
+    # Close the connection
+    connection.close()
 
     return categories
+
 
 # # Query the Review table for reviews matching the given RecipeID
 
@@ -67,7 +74,7 @@ def get_reviews_for_recipe(recipe_id: int):
     
     return reviews
 
-#Number of recipes avaialble in each category
+#Number of recipes available in each category
 def get_recipe_count_by_category():
     """
     Retrieves the count of recipes in each category.
@@ -88,78 +95,62 @@ def get_recipe_count_by_category():
 
     return results
 
-
-#pull the full list of users
-def get_users():
+# Get all users
+def get_all_users():
     """
-    Retrieves the full list of users.
+    Retrieve all users from the database.
+    
+    Returns:
+        list: A list of dictionaries containing user data.
+    """
+    connection = get_db_connection()  # Use the connection function for consistency
+    cursor = connection.cursor()
+    
+    # Adjusted to match the actual field names in your database
+    cursor.execute("SELECT UserID, FirstName, LastName, Email, JoinDate FROM users")
+    rows = cursor.fetchall()
+    
+    # Convert the data to a list of dictionaries
+    user_list = [
+        {
+            "UserID": row["UserID"],
+            "FirstName": row["FirstName"],
+            "LastName": row["LastName"],
+            "Email": row["Email"],
+            "JoinDate": row["JoinDate"]
+        }
+        for row in rows
+    ]
+    
+    connection.close()
+    return user_list
+
+
+def get_users_by_name(name, starts_with=True):
+    """
+    Retrieve users filtered by name. Can either filter users by names that
+    start with the provided string or contain the provided string.
+
+    Args:
+        name (str): The string to filter names by.
+        starts_with (bool): If True, filter by names that start with 'name'.
+                            If False, filter by names that contain 'name'.
+
+    Returns:
+        list: A list of dictionaries containing user data.
     """
     connection = get_db_connection()
     cursor = connection.cursor()
-
-    # Execute the query to show all users
-    cursor.execute("""
-        SELECT * FROM Users
-    """)
-    results = cursor.fetchall()
-    connection.close()
-
-#    for row in results:
-#        print(dict(row))
-
-    return results
-
-get_users()
-
-
-def get_instructions_for_recipe():
-    """
-    Retrieves the instructions for a given recipe by recipe name.
-    """
-    recipe_name = input("Enter the recipe name: ")
-    connection = get_db_connection()
-    cursor = connection.cursor()
-    query = """
-        SELECT I.StepCount, I.Instructions
-        FROM Instructions I
-        LEFT JOIN Recipes R on I.RecipeID = R.RecipeID
-        WHERE R.Title = ?
-    """
-    Query1 = pd.read_sql_query(query, connection, params=(recipe_name,))
-    connection.close()
-    if Query1.empty:
-        print(f"No records found for recipe: {recipe_name}.") #I cannot add the recipe name in the output window
+    
+    if starts_with:
+        query = "SELECT id, username, email FROM users WHERE username LIKE ?"
+        cursor.execute(query, (f"{name}%",))
     else:
-        print(Query1)
-    return Query1
-
-
-# Call the function
-get_instructions_for_recipe()
-
-
-def count_allergens():
-    """
-    Counts allergens.
-    """
-    connection = get_db_connection()
-    cursor = connection.cursor()
+        query = "SELECT id, username, email FROM users WHERE username LIKE ?"
+        cursor.execute(query, (f"%{name}%",))
     
-    cursor.execute('''
-        SELECT Count(IngredientsID) as count, IsAllergen
-        FROM Ingredients
-        GROUP BY IsAllergen
-    ''')
+    rows = cursor.fetchall()
+    user_list = [{"id": row[0], "username": row[1], "email": row[2]} for row in rows]
     
-    results = cursor.fetchall()
     connection.close()
-    
-    if results:
-        for row in results:
-            print(dict(row))
-    else:
-        print("No results found.")
-    
-    return results
-
-count_allergens() #Counts allergens
+    return user_list
