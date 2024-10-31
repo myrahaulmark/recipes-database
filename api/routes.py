@@ -42,6 +42,21 @@ def get_categories_endpoint():
     return jsonify(categories), 200
 
 
+
+# GET route to fetch all users with no limit
+@api_bp.route("/users", methods=["GET"])
+def get_users_endpoint():
+    """
+    Retrieve all users.
+    
+    Returns:
+        tuple: JSON response containing users and HTTP status code 200.
+    """
+    categories = services.get_all_users()  # Call the service function to get categories
+    return jsonify(categories), 200
+
+
+
 # ---------------------------------------------------------
 # Recipes
 # ---------------------------------------------------------
