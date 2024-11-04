@@ -2,6 +2,7 @@ from flask import jsonify, request, Blueprint
 import api.services as services
 from api.models import User, Category, Recipe, Ingredient, RecipeCategoryFact, RecipeIngredientsFact, Review, Instruction
 
+
 # Create a Blueprint instance
 # This will allow us to group related routes together. All the routes in this file will be part of the 'api' Blueprint.
 # This means that the routes will be accessible at '/api/' followed by the route path.
@@ -42,7 +43,6 @@ def get_categories_endpoint():
     return jsonify(categories), 200
 
 
-
 # GET route to fetch all users with no limit
 @api_bp.route("/users", methods=["GET"])
 def get_users_endpoint():
@@ -56,6 +56,29 @@ def get_users_endpoint():
     return jsonify(categories), 200
 
 
+#STILL EDITING
+@api_bp.route('/Reviews/<int:RecipeID>', methods=['GET'])
+def get_reviews_for_recipe(RecipeID):
+    """
+    Retrieve Review information for a specific RecipeID.
+
+    Args:
+        RecipeID (int): The unique identifier of the recipe.
+
+    Returns:
+        tuple: A tuple containing a JSON response and an HTTP status code.
+            - If the user is found, returns a JSON object with user information and status code 200.
+            - If the user is not found, returns a JSON object with an error message and status code 404.
+    """
+    
+    # Example: /api/users/1
+    
+    # Using the database services to get the user by ID
+    reviews = services.get_reviews_for_recipe(RecipeID)
+    if reviews:
+        return jsonify([dict(review) for review in reviews]), 200
+    return jsonify({'message': 'No reviews found'}), 404
+ 
 
 # ---------------------------------------------------------
 # Recipes
