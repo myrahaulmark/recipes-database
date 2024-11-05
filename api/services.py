@@ -208,3 +208,67 @@ def delete_user(user_id):
     success = cursor.rowcount > 0
     connection.close()
     return success
+
+#update a user
+def update_user_by_id(user_id, first_name, last_name, email):
+    """
+    Updates a user's first name, last name, and email by their user ID.
+
+    Args:
+        user_id (int): The user's ID.
+        first_name (str): The new first name.
+        last_name (str): The new last name.
+        email (str): The new email address.
+
+    Returns:
+        bool: True if the update was successful, False if the user wasn't found.
+    """
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    # Update the user's details in the database
+    cursor.execute("""
+        UPDATE users
+        SET FirstName = ?, LastName = ?, Email = ?
+        WHERE UserID = ?
+    """, (first_name, last_name, email, user_id))
+    
+    # Commit and check if any row was updated
+    connection.commit()
+    row_count = cursor.rowcount
+    connection.close()
+
+    return row_count > 0
+
+#getting ingredients for a recipe
+def get_ingredients_with_amounts_by_recipe_id(recipe_id):
+    """
+    Retrieves a list of ingredients 
+    
+    Args:
+        recipe_id (int): The ID of the recipe.
+    
+    Returns:
+        list: A list of dictionaries each containing ingredient details.
+    """
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    # SQL query to join tables and fetch necessary fields
+    cursor.execute("""
+        SELECT i.Ingredients AS Ingredient, i.IngredientsId
+        FROM Recipe_Ingredients_fact_table ri
+        JOIN Ingredients i ON ri.IngredientsID = i.IngredientsId
+        WHERE ri.RecipeId = ?
+    """, (recipe_id,))
+    
+    # Fetch results and format them as a list of dictionaries
+    ingredients = [
+        {"Ingredient": row["Ingredient"], "IngredientsId": row["IngredientsId"]}
+        for row in cursor.fetchall()
+    ]
+    
+    connection.close()
+    return ingredients
+
+

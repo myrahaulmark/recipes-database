@@ -111,6 +111,25 @@ def delete_user(user_id):
     else:
         return jsonify({"error": "User not found"}), 404
 
+#update a user
+@api_bp.route('/users/<int:UserID>', methods=['PUT'])
+def update_user(UserID):
+    data = request.get_json()
+    
+    # Validate input
+    if not data or 'FirstName' not in data or 'LastName' not in data or 'Email' not in data:
+        return jsonify({"error": "Fields 'FirstName', 'LastName', and 'Email' are required"}), 400
+    
+    # Call the services function to update user details
+    success = services.update_user_by_id(UserID, data['FirstName'], data['LastName'], data['Email'])
+    
+    if success:
+        return jsonify({"message": "User updated successfully"}), 200
+    else:
+        return jsonify({"error": "User not found"}), 404
+
+
+
 
 # ---------------------------------------------------------
 # Reviews
@@ -146,6 +165,15 @@ def get_reviews_for_recipe(RecipeID):
 # ---------------------------------------------------------
 # Ingredients
 # ---------------------------------------------------------
+@api_bp.route('/ingredients/<int:recipe_id>', methods=['GET'])
+def get_ingredients_for_recipe(recipe_id):
+    ingredients = services.get_ingredients_with_amounts_by_recipe_id(recipe_id)
+    if ingredients:
+        return jsonify(ingredients), 200
+    else:
+        return jsonify({"message": "No ingredients found for this recipe"}), 404
+
+
 
 
 # ---------------------------------------------------------
