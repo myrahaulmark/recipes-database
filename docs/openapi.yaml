@@ -12,6 +12,10 @@ schemes:
 tags:
   - name: Categories
     description: Operations related to categories
+  - name: Users
+    description: Operations related to users
+  - name: Reviews
+    description: Operations related to reviews
 
 paths:
   /categories:
@@ -34,3 +38,148 @@ paths:
                 CategoryName:
                   type: string
                   example: Italian
+
+  /users:
+    get:
+      summary: Retrieve users filtered by last name
+      description: Fetches a list of users based on a last name filter.
+      tags:
+        - Users
+      parameters:
+        - in: query
+          name: name
+          required: true
+          description: The string to filter last names by.
+          schema:
+            type: string
+            example: Smith
+        - in: query
+          name: starts_with
+          required: false
+          description: If true, filters users whose last names start with the provided string.
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: A list of users matching the filter criteria.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    UserID:
+                      type: integer
+                      example: 1
+                    FirstName:
+                      type: string
+                      example: John
+                    LastName:
+                      type: string
+                      example: Smith
+                    Email:
+                      type: string
+                      example: john.smith@example.com
+
+    post:
+      summary: Add a new user
+      description: Adds a new user to the database.
+      tags:
+        - Users
+      parameters:
+        - in: body
+          name: user
+          description: The user to create.
+          schema:
+            type: object
+            required:
+              - FirstName
+              - LastName
+              - Email
+            properties:
+              FirstName:
+                type: string
+                example: John
+              LastName:
+                type: string
+                example: Doe
+              Email:
+                type: string
+                example: johndoe@example.com
+      responses:
+        '201':
+          description: User created successfully.
+
+  /users/{UserID}:
+    delete:
+      summary: Delete a user
+      description: Deletes a user identified by `UserID`.
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: UserID
+          required: true
+          description: The ID of the user to delete.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User deleted successfully.
+        '404':
+          description: User not found.
+
+  /Reviews/{RecipeID}:
+    get:
+      summary: Retrieve reviews for a specific recipe
+      description: Retrieves review information for a recipe identified by `RecipeID`.
+      tags:
+        - Reviews
+      parameters:
+        - in: path
+          name: RecipeID
+          required: true
+          schema:
+            type: integer
+          description: The unique identifier of the recipe
+      responses:
+        '200':
+          description: A list of reviews for the specified recipe.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    ReviewID:
+                      type: integer
+                      example: 1
+                    RecipeID:
+                      type: integer
+                      example: 101
+                    ReviewerName:
+                      type: string
+                      example: "Jane Doe"
+                    ReviewText:
+                      type: string
+                      example: "Delicious recipe, easy to follow!"
+                    Rating:
+                      type: integer
+                      example: 5
+                    ReviewDate:
+                      type: string
+                      format: date
+                      example: "2023-10-10"
+        '404':
+          description: No reviews found for the specified RecipeID.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No reviews found"

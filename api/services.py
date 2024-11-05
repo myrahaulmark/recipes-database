@@ -128,13 +128,13 @@ def get_all_users():
 
 def get_users_by_name(name, starts_with=True):
     """
-    Retrieve users filtered by name. Can either filter users by names that
+    Retrieve users filtered by last name. Can either filter users by last names that
     start with the provided string or contain the provided string.
 
     Args:
-        name (str): The string to filter names by.
-        starts_with (bool): If True, filter by names that start with 'name'.
-                            If False, filter by names that contain 'name'.
+        name (str): The string to filter last names by.
+        starts_with (bool): If True, filter by last names that start with 'name'.
+                            If False, filter by last names that contain 'name'.
 
     Returns:
         list: A list of dictionaries containing user data.
@@ -142,15 +142,69 @@ def get_users_by_name(name, starts_with=True):
     connection = get_db_connection()
     cursor = connection.cursor()
     
+    # Update the query to filter by LastName
     if starts_with:
-        query = "SELECT id, username, email FROM users WHERE username LIKE ?"
+        query = "SELECT UserID, FirstName, LastName, Email FROM users WHERE LastName LIKE ?"
         cursor.execute(query, (f"{name}%",))
     else:
-        query = "SELECT id, username, email FROM users WHERE username LIKE ?"
+        query = "SELECT UserID, FirstName, LastName, Email FROM users WHERE LastName LIKE ?"
         cursor.execute(query, (f"%{name}%",))
     
     rows = cursor.fetchall()
-    user_list = [{"id": row[0], "username": row[1], "email": row[2]} for row in rows]
+    user_list = [
+        {
+            "UserID": row["UserID"], 
+            "FirstName": row["FirstName"], 
+            "LastName": row["LastName"], 
+            "Email": row["Email"]
+        } 
+        for row in rows
+    ]
     
     connection.close()
     return user_list
+
+#add user 
+def add_user(first_name, last_name, email, join_date):
+    """
+    Add a new user to the database.
+    
+    Args:
+        first_name (str): The user's first name.
+        last_name (str): The user's last name.
+        email (str): The user's email.
+        join_date (str): The join date in 'YYYY-MM-DD' format.
+    
+    Returns:
+        int: The ID of the newly added user.
+    """
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "INSERT INTO users (FirstName, LastName, Email, JoinDate) VALUES (?, ?, ?, ?)",
+        (first_name, last_name, email, join_date)
+    )
+    connection.commit()
+    user_id = cursor.lastrowid
+    connection.close()
+    return user_id
+
+#delete user
+def delete_user(user_id):
+    """
+    Delete a user from the database by UserID.
+    
+    Args:
+        user_id (int): The unique ID of the user to delete.
+    
+    Returns:
+        bool: True if the user was deleted, False if not found.
+    """
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("DELETE FROM users WHERE UserID = ?", (user_id,))
+    connection.commit()
+    success = cursor.rowcount > 0
+    connection.close()
+    return success

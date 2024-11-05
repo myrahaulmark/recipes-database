@@ -42,20 +42,79 @@ def get_categories_endpoint():
     categories = services.get_categories()  # Call the service function to get categories
     return jsonify(categories), 200
 
+# ---------------------------------------------------------
+# Users
+# ---------------------------------------------------------
 
 # GET route to fetch all users with no limit
+from flask import jsonify, request, Blueprint
+import api.services as services
+
+api_bp = Blueprint("api", __name__)
+
 @api_bp.route("/users", methods=["GET"])
 def get_users_endpoint():
     """
-    Retrieve all users.
-    
+    Retrieve a list of users filtered by last name.
+    If the query parameter 'name' is provided, filter users by last names that start with the provided string.
+    If 'starts_with' is False, filter users by last names that contain the provided string.
+
+    Query Parameters:
+        name (str): The string to filter last names by.
+        starts_with (bool, optional): If True, filter names that start with the string. Defaults to True.
+
     Returns:
-        tuple: JSON response containing users and HTTP status code 200.
+        JSON response with a list of users.
     """
-    categories = services.get_all_users()  # Call the service function to get categories
-    return jsonify(categories), 200
+    name = request.args.get("name")
+    starts_with = request.args.get("starts_with", "true").lower() == "true"
+
+    # Validate 'name' parameter
+    if not name:
+        return jsonify({"error": "The 'name' query parameter is required."}), 400
+
+    # Call the function to get filtered users
+    users = services.get_users_by_name(name, starts_with=starts_with)
+    return jsonify(users), 200
+
+#Add a user
+@api_bp.route('/users', methods=['POST'])
+def add_user():
+    """
+    Add a new user to the database.
+    Expects JSON payload with 'FirstName', 'LastName', 'Email', and 'JoinDate'.
+    """
+    data = request.get_json()
+
+    # Ensure all required fields are present
+    if not all(field in data for field in ['FirstName', 'LastName', 'Email', 'JoinDate']):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Add the user to the database using the service function
+    user_id = services.add_user(
+        first_name=data['FirstName'],
+        last_name=data['LastName'],
+        email=data['Email'],
+        join_date=data['JoinDate']
+    )
+    return jsonify({"message": "User added successfully", "UserID": user_id}), 201
+
+#Delete a user
+@api_bp.route('/users/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    """
+    Delete a user by UserID.
+    """
+    success = services.delete_user(user_id)
+    if success:
+        return jsonify({"message": "User deleted successfully"}), 200
+    else:
+        return jsonify({"error": "User not found"}), 404
 
 
+# ---------------------------------------------------------
+# Reviews
+# ---------------------------------------------------------
 #STILL EDITING
 @api_bp.route('/Reviews/<int:RecipeID>', methods=['GET'])
 def get_reviews_for_recipe(RecipeID):
@@ -88,14 +147,8 @@ def get_reviews_for_recipe(RecipeID):
 # Ingredients
 # ---------------------------------------------------------
 
-# ---------------------------------------------------------
-# Reviews
-# ---------------------------------------------------------
 
 # ---------------------------------------------------------
 # Instructions
 # ---------------------------------------------------------
 
-# ---------------------------------------------------------
-# Users
-# ---------------------------------------------------------
