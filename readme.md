@@ -52,16 +52,4 @@ A [list of tables](docs/Diagram.md) is also available.
 `services.py`: Contains all developed queries. 
 git remote add origin https://github.com/myrahaulmark/recipe_db_project.git
 
-Andrew's Queries:
 
-Query 1: Users a left join and parameterized inputs to allow the user to pick a recipe to pull ingredients for.
-Query 2: Allows the user to count how many recipes are allergen friendly.
-Query 3: Pulls all the user information.
-
-Myra's Queries:
-
-Query 1: This query retrieves a list of recipes along with their ingredients based on a user-specified category. It dynamically accepts a category name as input, making it flexible for users to filter results by category. If the category does not exist, it prompts the user with a list of available categories.
-
-Query 2: This query retrieves reviews for a specific recipe, using a parameterized input for recipe ID. This is useful for retrieving all reviews associated with a particular recipe based on user input.
-
-Query 3: This query calculates the average rating for each recipe. It provides a summary of how users have rated different recipes, which is useful for understanding overall user satisfaction.
