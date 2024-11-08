@@ -19,7 +19,7 @@ tags:
   - name: Ingredients
     description: Operations related to ingredients
   - name: Recipes
-    description: Operations related to Recipes
+    description: Operations related to recipes
 
 paths:
   /categories:
@@ -67,25 +67,23 @@ paths:
       responses:
         '200':
           description: A list of users matching the filter criteria.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    UserID:
-                      type: integer
-                      example: 1
-                    FirstName:
-                      type: string
-                      example: John
-                    LastName:
-                      type: string
-                      example: Smith
-                    Email:
-                      type: string
-                      example: john.smith@example.com
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                UserID:
+                  type: integer
+                  example: 1
+                FirstName:
+                  type: string
+                  example: John
+                LastName:
+                  type: string
+                  example: Smith
+                Email:
+                  type: string
+                  example: john.smith@example.com
 
     post:
       summary: Add a new user
@@ -135,7 +133,6 @@ paths:
         '404':
           description: User not found.
 
-  
     put:
       summary: Update an existing user
       description: Updates a user's details by UserID.
@@ -148,22 +145,21 @@ paths:
           description: The ID of the user to update.
           schema:
             type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                FirstName:
-                  type: string
-                  example: "John"
-                LastName:
-                  type: string
-                  example: "Doe"
-                Email:
-                  type: string
-                  example: "john.doe@example.com"
+        - in: body
+          name: user
+          description: User information to update.
+          schema:
+            type: object
+            properties:
+              FirstName:
+                type: string
+                example: "John"
+              LastName:
+                type: string
+                example: "Doe"
+              Email:
+                type: string
+                example: "john.doe@example.com"
       responses:
         '200':
           description: User updated successfully.
@@ -171,9 +167,6 @@ paths:
           description: User not found.
         '400':
           description: Required fields missing in the request body.
-
-
-
 
   /Reviews/{RecipeID}:
     get:
@@ -191,48 +184,43 @@ paths:
       responses:
         '200':
           description: A list of reviews for the specified recipe.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    ReviewID:
-                      type: integer
-                      example: 1
-                    RecipeID:
-                      type: integer
-                      example: 101
-                    ReviewerName:
-                      type: string
-                      example: "Jane Doe"
-                    ReviewText:
-                      type: string
-                      example: "Delicious recipe, easy to follow!"
-                    Rating:
-                      type: integer
-                      example: 5
-                    ReviewDate:
-                      type: string
-                      format: date
-                      example: "2023-10-10"
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                ReviewID:
+                  type: integer
+                  example: 1
+                RecipeID:
+                  type: integer
+                  example: 101
+                ReviewerName:
+                  type: string
+                  example: "Jane Doe"
+                ReviewText:
+                  type: string
+                  example: "Delicious recipe, easy to follow!"
+                Rating:
+                  type: integer
+                  example: 5
+                ReviewDate:
+                  type: string
+                  format: date
+                  example: "2023-10-10"
         '404':
           description: No reviews found for the specified RecipeID.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "No reviews found"
-
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "No reviews found"
 
   /ingredients/{recipe_id}:
     get:
-      summary: Retrieve ingredients and amounts for a specific recipe
-      description: Fetches all ingredients and their amounts for a given recipe ID.
+      summary: Retrieve ingredients for a specific recipe
+      description: Fetches all ingredients for a given recipe ID.
       tags:
         - Ingredients
       parameters:
@@ -245,27 +233,23 @@ paths:
             example: 101
       responses:
         '200':
-          description: A list of ingredients with their respective amounts for the specified recipe.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    Ingredient:
-                      type: string
-                      example: "Salt"
-                    IngredientsId:
-                      type: integer
-                      example: 101007
-          '404':
+          description: A list of ingredients for the specified recipe.
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                Ingredient:
+                  type: string
+                  example: "Salt"
+                IngredientsId:
+                  type: integer
+                  example: 101007
+        '404':
           description: No ingredients found for the specified RecipeID.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "No ingredients found for this recipe"
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "No ingredients found for this recipe"
