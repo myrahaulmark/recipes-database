@@ -8,18 +8,14 @@ To get started, you'll need to install the dependencies.  You can do this by run
 ```bash
 pip install -r requirements.txt
 ```
-
 ### Running the API
 To run the API, you can run the following command:
 ```bash
 python basic-flask.py
 ```
-
 ### Using the API
 Once the API is running, you can use the following commands to interact with it.
 
-# Let's create a markdown file with the API documentation content provided.
-markdown_content = """
 # Recipe Database API Documentation
 
 ## API Overview
