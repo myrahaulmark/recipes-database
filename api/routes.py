@@ -134,7 +134,6 @@ def update_user(UserID):
 # ---------------------------------------------------------
 # Reviews
 # ---------------------------------------------------------
-#STILL EDITING
 @api_bp.route('/Reviews/<int:RecipeID>', methods=['GET'])
 def get_reviews_for_recipe(RecipeID):
     """
