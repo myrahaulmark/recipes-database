@@ -333,7 +333,7 @@ You can also test the API endpoints using **Postman**, a tool for API developmen
 
 3. **Choose the method**: 
     - Select the appropriate HTTP method (GET, POST, PUT, DELETE) depending on what you want to do.
-    - Example: Choose `GET` for fetching users or `POST` for creating a new recipe.
+    - Example: Choose `GET` for fetching users or `DEL` for deleting a user.
 
 4. **Add headers (if needed)**: 
     - If your API requires authentication, add the necessary API key or authentication token in the headers.
@@ -349,5 +349,5 @@ You can also test the API endpoints using **Postman**, a tool for API developmen
 ## Example Requests:
 
 - **GET** all users: `GET http://localhost:5000/api/users`
-- **POST** a new recipe: `POST http://localhost:5000/api/recipes` (with recipe data in the request body)
+- **GET** reviews for a specific recipe: `GET http://localhost:5000/api/Reviews/{RecipeID}` (with recipe data in the request body)
 
