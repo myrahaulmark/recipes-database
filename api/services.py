@@ -27,30 +27,24 @@ def get_limited_recipes(limit=10):
 
 
 # Get all categories
-def get_categories() -> List[dict]:
+import sqlite3
+from typing import List, Dict
+
+def get_categories() -> List[Dict]:
     """
     Retrieves all categories from the database.
 
     Returns:
-        List[dict]: A list of dictionaries representing categories.
+        List[Dict]: A list of dictionaries representing categories.
     """
-    # Establish a database connection
+    # Establish a database connection and set row_factory for dictionary-like rows
     connection = get_db_connection()
+    connection.row_factory = sqlite3.Row  # Enables dictionary-style access
     cursor = connection.cursor()
-    
-    # Execute the query to fetch categories from the database
-    cursor.execute("SELECT CategoryID, CategoryName FROM Categories")  # Ensure this matches your actual table name
-    rows = cursor.fetchall()  # Fetch all rows from the query
-    
-    # Map rows to Category objects
-    categories = []
-    for row in rows:
-        # Create a Category object by passing individual fields (assuming the table columns are in order)
-        category = Category(
-            CategoryID=row["CategoryID"],
-            CategoryName=row["CategoryName"]
-        )
-        categories.append(category.to_dict())  # Use to_dict() for JSON compatibility
+
+    # Execute the query and fetch categories
+    cursor.execute("SELECT CategoryID, CategoryName FROM Categories")
+    categories = [dict(row) for row in cursor.fetchall()]  # Map each row to a dictionary
 
     # Close the connection
     connection.close()

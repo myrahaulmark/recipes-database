@@ -54,16 +54,14 @@ paths:
           name: name
           required: true
           description: The string to filter last names by.
-          schema:
-            type: string
-            example: Smith
+          type: string
+          example: Smith
         - in: query
           name: starts_with
           required: false
           description: If true, filters users whose last names start with the provided string.
-          schema:
-            type: boolean
-            default: true
+          type: boolean
+          default: true
       responses:
         '200':
           description: A list of users matching the filter criteria.
@@ -125,8 +123,7 @@ paths:
           name: UserID
           required: true
           description: The ID of the user to delete.
-          schema:
-            type: integer
+          type: integer
       responses:
         '200':
           description: User deleted successfully.
@@ -143,8 +140,7 @@ paths:
           name: UserID
           required: true
           description: The ID of the user to update.
-          schema:
-            type: integer
+          type: integer
         - in: body
           name: user
           description: User information to update.
@@ -178,8 +174,7 @@ paths:
         - in: path
           name: RecipeID
           required: true
-          schema:
-            type: integer
+          type: integer
           description: The unique identifier of the recipe
       responses:
         '200':
@@ -228,9 +223,8 @@ paths:
           name: recipe_id
           required: true
           description: The ID of the recipe to retrieve ingredients for.
-          schema:
-            type: integer
-            example: 101
+          type: integer
+          example: 101
       responses:
         '200':
           description: A list of ingredients for the specified recipe.
