@@ -247,3 +247,57 @@ paths:
               message:
                 type: string
                 example: "No ingredients found for this recipe"
+
+  /recipes/limited:
+    get:
+      summary: Retrieve a limited number of recipes
+      description: Fetches a limited number of recipes. By default, returns up to 10 recipes.
+      tags:
+        - Recipes
+      parameters:
+        - in: query
+          name: limit
+          required: false
+          description: The maximum number of recipes to retrieve.
+          schema:
+            type: integer
+            example: 10
+      responses:
+        '200':
+          description: A list of recipes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    RecipeID:
+                      type: integer
+                      example: 1
+                    Title:
+                      type: string
+                      example: "Spaghetti Bolognese"
+                    Description:
+                      type: string
+                      example: "A classic Italian pasta dish."
+                    SubmittedDate:
+                      type: string
+                      format: date
+                      example: "2023-11-01"
+                    CookingTime:
+                      type: integer
+                      example: 45
+                    Servings:
+                      type: integer
+                      example: 4
+        '404':
+          description: No recipes found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No recipes found"
