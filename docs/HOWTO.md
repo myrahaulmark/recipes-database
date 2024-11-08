@@ -160,6 +160,6 @@ This documentation provides the available endpoints for the Recipe Database API.
             ]
             ```
         - `404 Not Found`: No ingredients found for the specified recipe.
-"""
+
 
 
