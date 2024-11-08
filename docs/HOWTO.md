@@ -1,5 +1,4 @@
 # How to use the API
-This document would typically be a README.md in your repository, but since we used the README.md file to explain the three different API implementations, we are going to use this file as example documentation for each API.
 
 ## Basic Flask API
 
