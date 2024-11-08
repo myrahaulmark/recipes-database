@@ -161,6 +161,23 @@ def get_reviews_for_recipe(RecipeID):
 # Recipes
 # ---------------------------------------------------------
 
+@api_bp.route('/recipes/limited', methods=['GET'])
+def get_limited_recipes_endpoint():
+    """
+    Retrieve a limited number of recipes.
+
+    Args:
+        limit (int, optional): The maximum number of recipes to retrieve. Default is 10.
+
+    Returns:
+        tuple: JSON response containing recipes and HTTP status code 200.
+    """
+    limit = request.args.get('limit', default=10, type=int)
+    recipes = services.get_limited_recipes(limit)
+    if recipes:
+        return jsonify([dict(recipe) for recipe in recipes]), 200
+    return jsonify({'message': 'No recipes found'}), 404
+
 # ---------------------------------------------------------
 # Ingredients
 # ---------------------------------------------------------
@@ -171,8 +188,6 @@ def get_ingredients_for_recipe(recipe_id):
         return jsonify(ingredients), 200
     else:
         return jsonify({"message": "No ingredients found for this recipe"}), 404
-
-
 
 
 # ---------------------------------------------------------
