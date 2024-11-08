@@ -16,6 +16,10 @@ tags:
     description: Operations related to users
   - name: Reviews
     description: Operations related to reviews
+  - name: Ingredients
+    description: Operations related to ingredients
+  - name: Recipes
+    description: Operations related to Recipes
 
 paths:
   /categories:
