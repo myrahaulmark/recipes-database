@@ -20,6 +20,8 @@ tags:
     description: Operations related to ingredients
   - name: Recipes
     description: Operations related to recipes
+  - name: Instructions
+    description: Operations related to instructions    
 
 paths:
   /categories:
@@ -301,3 +303,43 @@ paths:
                   message:
                     type: string
                     example: "No recipes found"
+
+  /instructions:
+    get:
+      summary: Retrieve instructions filtered by recipeid
+      description: Fetches a list of instructions based on a recipeID.
+      tags:
+        - Instructions
+      parameters:
+        - in: query
+          name: RecipeID
+          required: true
+          description: The string to organize recipe instructions
+          type: string
+          example: Remove seeds
+        - in: query
+          name: starts_with
+          required: false
+          description: If true, queries recipe instructions
+          type: boolean
+          default: true
+      responses:
+        '200':
+          description: A list of instructions matching the recipe id.
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                InstructionID:
+                  type: integer
+                  example: 401001
+                StepCount:
+                  type: string
+                  example: Remove seeds
+                RecipeID:
+                  type: string
+                  example: Smith
+                Email:
+                  type: integer
+                  example: 3000000
