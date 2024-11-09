@@ -281,7 +281,7 @@ def get_instructions_by_recipe_title(recipe_title):
     # SQL query to join tables and fetch necessary fields
     cursor.execute("""
         SELECT I.StepCount,
-               I.Instruction
+               I.Instructions
         FROM Instructions I
         LEFT JOIN Recipes R on I.RecipeID = R.RecipeID
         WHERE R.Title = ?
