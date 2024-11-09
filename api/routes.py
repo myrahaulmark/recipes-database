@@ -175,11 +175,11 @@ def get_ingredients_for_recipe(recipe_id):
 # ---------------------------------------------------------
 # Instructions
 # ---------------------------------------------------------
-@api_bp.route('/instructions/<Title>', methods=['GET'])
-def get_instructions_by_recipe_id(Title):
-    instructions = services.get_instructions_by_recipe_id(Title)
-    if instructions:
-        return jsonify(instructions), 200
-    else:
-        return jsonify({"message": "No instructions found for this recipe"}), 404
 
+@api_bp.route('/instructions/<recipe_title>', methods=['GET']) 
+def get_instructions_by_recipe_title(recipe_title): 
+    instructions = services.get_instructions_by_recipe_title(recipe_title) 
+    if instructions: 
+        return jsonify(instructions), 200 
+    else: 
+        return jsonify({"message": "No instructions found for this recipe"}), 404

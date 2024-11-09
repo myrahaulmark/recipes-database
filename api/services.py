@@ -265,13 +265,12 @@ def get_ingredients_with_amounts_by_recipe_id(recipe_id):
     connection.close()
     return ingredients
 
-#getting instructions for a recipe
-def get_instructions_by_recipe_id(recipe_id):
+def get_instructions_by_recipe_title(recipe_title):
     """
     Retrieves a list of instructions 
     
     Args:
-        recipe_id (int): The ID of the recipe.
+        recipe_title (str): The title of the recipe.
     
     Returns:
         list: A list of dictionaries each containing instruction details.
@@ -282,17 +281,17 @@ def get_instructions_by_recipe_id(recipe_id):
     # SQL query to join tables and fetch necessary fields
     cursor.execute("""
         SELECT I.StepCount,
-        I.Instructions
+               I.Instruction
         FROM Instructions I
         LEFT JOIN Recipes R on I.RecipeID = R.RecipeID
         WHERE R.Title = ?
-    """, (recipe_id,))
+    """, (recipe_title,))
     
     # Fetch results and format them as a list of dictionaries
-    Instruction = [
-        {"Instruction": row["Instruction"], "InstructionsId": row["InstructionsId"]}
+    instructions = [
+        {"StepCount": row["StepCount"], "Instruction": row["Instruction"]}
         for row in cursor.fetchall()
     ]
     
     connection.close()
-    return Instruction
+    return instructions

@@ -306,13 +306,13 @@ paths:
 
   /instructions:
     get:
-      summary: Retrieve instructions filtered by recipeid
-      description: Fetches a list of instructions based on a recipeID.
+      summary: Retrieve instructions filtered by recipe_title
+      description: Fetches a list of instructions based on a recipe_title.
       tags:
         - Instructions
       parameters:
         - in: query
-          name: RecipeID
+          name: Title
           required: true
           description: The string to organize recipe instructions
           type: string
@@ -325,7 +325,7 @@ paths:
           default: true
       responses:
         '200':
-          description: A list of instructions matching the recipe id.
+          description: A list of instructions matching the recipe_title.
           schema:
             type: array
             items:
