@@ -304,42 +304,43 @@ paths:
                     type: string
                     example: "No recipes found"
 
-  /instructions:
+/instructions/{recipe_title}:
     get:
-      summary: Retrieve instructions filtered by recipe_title
+      summary: Retrieve instructions by recipe_title
       description: Fetches a list of instructions based on a recipe_title.
       tags:
         - Instructions
       parameters:
-        - in: query
-          name: Title
+        - in: path
+          name: recipe_title
           required: true
-          description: The string to organize recipe instructions
-          type: string
-          example: Remove seeds
-        - in: query
-          name: starts_with
-          required: false
-          description: If true, queries recipe instructions
-          type: boolean
-          default: true
+          description: The title of the recipe to fetch instructions for.
+          schema:
+            type: string
+            example: "Remove seeds"
       responses:
         '200':
           description: A list of instructions matching the recipe_title.
-          schema:
-            type: array
-            items:
-              type: object
-              properties:
-                InstructionID:
-                  type: integer
-                  example: 401001
-                StepCount:
-                  type: string
-                  example: Remove seeds
-                RecipeID:
-                  type: string
-                  example: Smith
-                Email:
-                  type: integer
-                  example: 3000000
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    StepCount:
+                      type: integer
+                      example: 1
+                    Instruction:
+                      type: string
+                      example: "Remove seeds"
+        '404':
+          description: No instructions found for the given recipe title.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No instructions found for this recipe"
