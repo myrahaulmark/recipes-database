@@ -303,7 +303,6 @@ paths:
                   message:
                     type: string
                     example: "No recipes found"
-
 /instructions/{recipe_title}:
     get:
       summary: Retrieve instructions by recipe_title
