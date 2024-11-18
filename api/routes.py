@@ -40,6 +40,22 @@ def get_categories_endpoint():
     categories = services.get_categories()
     return jsonify(categories), 200
 
+# GET route to fetch all appetizers at random
+@api_bp.route('/recipes/appetizers/random', methods=['GET'])
+def get_random_appetizer_recipes_route():
+    """
+    API endpoint to fetch up to 6 random appetizer recipes.
+    """
+    try:
+        recipes = services.get_random_appetizer_recipes(limit=6)  # Pass the limit argument here
+        if not recipes:
+            return jsonify({"error": "No recipes found in Appetizers category"}), 404
+        return jsonify({"recipes": recipes}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+
 # ---------------------------------------------------------
 # Users
 # ---------------------------------------------------------

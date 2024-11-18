@@ -343,3 +343,39 @@ paths:
                 Email:
                   type: integer
                   example: 3000000
+
+  /recipes/appetizers/random:
+    get:
+      summary: Get Random Appetizer Recipes
+      description: Fetches up to 6 random recipes from the 'Appetizers' category.
+      tags:
+      - Categories
+      responses:
+        200:
+          description: Successful response with up to 6 random appetizer recipes.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recipes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        RecipeID:
+                          type: integer
+                        RecipeName:
+                          type: string
+                        Description:
+                          type: string
+                        CookingTime:
+                          type: integer
+                        Servings:
+                          type: integer
+                        ImageURL:
+                          type: string
+        404:
+          description: No recipes found in Appetizers category.
+        500:
+          description: Server error.

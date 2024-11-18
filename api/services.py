@@ -25,7 +25,9 @@ def get_limited_recipes(limit=10):
     cursor.execute("SELECT * FROM Recipes LIMIT ?", (limit,))
     return cursor.fetchall()
 
-
+# ---------------------------------------------------------
+# Related to Categories
+# ---------------------------------------------------------
 # Get all categories
 import sqlite3
 from typing import List, Dict
@@ -51,7 +53,50 @@ def get_categories() -> List[Dict]:
 
     return categories
 
+# Get recipes in Appetizers with ingredients, instructions and reviews
+def get_random_appetizer_recipes(limit=6):
+    """
+    Fetches up to `limit` random recipes from the 'Appetizers' category.
+    """
+    query = """
+        SELECT 
+            r.RecipeID,
+            r.Title AS RecipeName,
+            r.Description,
+            r.CookingTime,
+            r.Servings,
+            r.ImageURL
+        FROM 
+            Recipes r
+        LEFT JOIN 
+            Category_Recipe_fact_table rcft ON r.RecipeID = rcft.RecipeID
+        LEFT JOIN 
+            Categories c ON rcft.CategoryID = c.CategoryID
+        WHERE 
+            c.CategoryName = 'Appetizers'
+        ORDER BY RANDOM()
+        LIMIT ?;
+    """
+    connection = get_db_connection() 
+    cursor = connection.cursor()
+    cursor.execute(query, (limit,))
+    rows = cursor.fetchall()
+    connection.close()
 
+    # Convert the rows into a structured JSON response
+    recipes = []
+    for row in rows:
+        recipes.append({
+            "RecipeID": row[0],
+            "RecipeName": row[1],
+            "Description": row[2],
+            "CookingTime": row[3],
+            "Servings": row[4],
+            "ImageURL": row[5]
+        })
+    return recipes
+
+    
 # # Query the Review table for reviews matching the given RecipeID
 
 def get_reviews_for_recipe(recipe_id: int):
