@@ -303,6 +303,69 @@ paths:
                   message:
                     type: string
                     example: "No recipes found"
+  /recipes/{recipe_id}:
+    get:
+      summary: Get a specific recipe
+      description: Retrieve a specific recipe by its RecipeID, including ingredients, instructions, and reviews.
+      parameters:
+        - name: recipe_id
+          in: path
+          required: true
+          description: The ID of the recipe to retrieve.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Recipe details successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  RecipeID:
+                    type: integer
+                  RecipeName:
+                    type: string
+                  Description:
+                    type: string
+                  CookingTime:
+                    type: integer
+                  Servings:
+                    type: integer
+                  ImageURL:
+                    type: string
+                  Ingredients:
+                    type: array
+                    items:
+                      type: string
+                  Instructions:
+                    type: array
+                    items:
+                      type: string
+                  Reviews:
+                    type: array
+                    items:
+                      type: string
+        '404':
+          description: Recipe not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  
+  
   /instructions/{recipe_title}:
       get:
         summary: Retrieve instructions by recipe_title

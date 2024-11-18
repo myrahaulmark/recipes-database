@@ -177,6 +177,18 @@ def get_limited_recipes_endpoint():
         return jsonify([dict(recipe) for recipe in recipes]), 200
     return jsonify({'message': 'No recipes found'}), 404
 
+# Get the recipe and alll details
+@api_bp.route('/recipes/<int:recipe_id>', methods=['GET'])
+def get_appetizer_recipe(recipe_id):
+    try:
+        recipe = services.fetch_recipe(recipe_id)
+        if not recipe:
+            return jsonify({"error": "Recipe not found"}), 404
+        return jsonify(recipe), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # ---------------------------------------------------------
 # Ingredients
 # ---------------------------------------------------------

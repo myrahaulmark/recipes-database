@@ -348,3 +348,56 @@ def get_instructions_by_recipe_title(recipe_title):
         connection.close()
     
     return instructions
+
+# Get ingredients, instructions, reviews and ratings for a recipe ID
+def fetch_recipe(recipe_id):
+    """
+    Fetch a specific recipe by RecipeID, including ingredients, instructions, and reviews.
+    """
+    try:
+        # SQL query to fetch the recipe details, ingredients, instructions, and reviews
+        query = """
+        SELECT
+            r.RecipeID,
+            r.RecipeName,
+            r.Description,
+            r.CookingTime,
+            r.Servings,
+            r.ImageURL,
+            GROUP_CONCAT(i.Ingredients, ', ') AS Ingredients,
+            GROUP_CONCAT(ins.Instructions ORDER BY ins.StepCount ASC SEPARATOR '||') AS Instructions,
+            GROUP_CONCAT(CONCAT(u.FirstName, ' ', u.LastName, ': ', rv.ReviewText, ' (Rating: ', rv.Rating, ')')
+                         ORDER BY rv.ReviewDate DESC SEPARATOR '||') AS Reviews
+        FROM Recipes r
+        LEFT JOIN Recipe_Ingredients_fact_table rif ON r.RecipeID = rif.RecipeID
+        LEFT JOIN Ingredients i ON rif.IngredientID = i.IngredientID
+        LEFT JOIN Instructions ins ON r.RecipeID = ins.RecipeID
+        LEFT JOIN Reviews rv ON r.RecipeID = rv.RecipeID
+        LEFT JOIN Users u ON rv.UserID = u.UserID
+        WHERE r.RecipeID = ?
+        GROUP BY r.RecipeID;
+        """
+        cursor = db.connection.cursor()
+        cursor.execute(query, (recipe_id,))
+        recipe = cursor.fetchone()
+
+        if not recipe:
+            return None
+
+        # Convert the result into a dictionary
+        recipe_data = {
+            "RecipeID": recipe[0],
+            "RecipeName": recipe[1],
+            "Description": recipe[2],
+            "CookingTime": recipe[3],
+            "Servings": recipe[4],
+            "ImageURL": recipe[5],
+            "Ingredients": recipe[6].split(', ') if recipe[6] else [],
+            "Instructions": recipe[7].split('||') if recipe[7] else [],
+            "Reviews": recipe[8].split('||') if recipe[8] else []
+        }
+
+        return recipe_data
+
+    except Exception as e:
+        raise RuntimeError(f"Error fetching recipe: {e}")
