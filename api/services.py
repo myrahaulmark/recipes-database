@@ -364,9 +364,10 @@ def fetch_recipe(recipe_id):
             r.CookingTime,
             r.Servings,
             r.ImageURL,
-            GROUP_CONCAT(i.Ingredients, ', ') AS Ingredients,
-            GROUP_CONCAT(ins.Instructions, '||') AS Instructions,
-            GROUP_CONCAT(u.FirstName || ' ' || u.LastName || ': ' || rv.ReviewText || ' (Rating: ' || rv.Rating || ')', '||') AS Reviews
+            GROUP_CONCAT(DISTINCT i.Ingredients, ', ') AS Ingredients,
+            GROUP_CONCAT(DISTINCT ins.Instructions ORDER BY ins.StepCount ASC SEPARATOR '||') AS Instructions,
+            GROUP_CONCAT(DISTINCT CONCAT(u.FirstName, ' ', u.LastName, ': ', rv.ReviewText, ' (Rating: ', rv.Rating, ')') 
+                         ORDER BY rv.ReviewDate DESC SEPARATOR '||') AS Reviews
         FROM Recipes r
         LEFT JOIN Recipe_Ingredients_fact_table rif ON r.RecipeID = rif.RecipeID
         LEFT JOIN Ingredients i ON rif.IngredientsID = i.IngredientsID
@@ -384,9 +385,10 @@ def fetch_recipe(recipe_id):
         if not recipe:
             return None
 
+        # Convert result to a dictionary
         recipe_data = {
             "RecipeID": recipe["RecipeID"],
-            "RecipeName": recipe["Title"],
+            "RecipeName": recipe["RecipeName"],
             "Description": recipe["Description"],
             "CookingTime": recipe["CookingTime"],
             "Servings": recipe["Servings"],
