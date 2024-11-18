@@ -354,6 +354,7 @@ def get_instructions_by_recipe_title(recipe_title):
 def fetch_recipe(recipe_id):
     """
     Fetch a specific recipe by RecipeID, including ingredients, instructions, and reviews.
+    Deduplicate the ingredients, instructions, and reviews after fetching.
     """
     try:
         query = """
@@ -364,14 +365,14 @@ def fetch_recipe(recipe_id):
             r.CookingTime,
             r.Servings,
             r.ImageURL,
-            (SELECT GROUP_CONCAT(DISTINCT i.Ingredients, ', ')
+            (SELECT GROUP_CONCAT(i.Ingredients, ', ')
              FROM Recipe_Ingredients_fact_table rif
              JOIN Ingredients i ON rif.IngredientsID = i.IngredientsID
              WHERE rif.RecipeID = r.RecipeID) AS Ingredients,
             (SELECT GROUP_CONCAT(ins.Instructions, '||')
              FROM Instructions ins
              WHERE ins.RecipeID = r.RecipeID) AS Instructions,
-            (SELECT GROUP_CONCAT(DISTINCT u.FirstName || ' ' || u.LastName || ': ' || rv.ReviewText || ' (Rating: ' || rv.Rating || ')', '||')
+            (SELECT GROUP_CONCAT(u.FirstName || ' ' || u.LastName || ': ' || rv.ReviewText || ' (Rating: ' || rv.Rating || ')', '||')
              FROM Reviews rv
              JOIN Users u ON rv.UserID = u.UserID
              WHERE rv.RecipeID = r.RecipeID) AS Reviews
@@ -394,9 +395,9 @@ def fetch_recipe(recipe_id):
             "CookingTime": recipe["CookingTime"],
             "Servings": recipe["Servings"],
             "ImageURL": recipe["ImageURL"],
-            "Ingredients": recipe["Ingredients"].split(', ') if recipe["Ingredients"] else [],
-            "Instructions": recipe["Instructions"].split('||') if recipe["Instructions"] else [],
-            "Reviews": recipe["Reviews"].split('||') if recipe["Reviews"] else []
+            "Ingredients": list(set(recipe["Ingredients"].split(', '))) if recipe["Ingredients"] else [],
+            "Instructions": list(set(recipe["Instructions"].split('||'))) if recipe["Instructions"] else [],
+            "Reviews": list(set(recipe["Reviews"].split('||'))) if recipe["Reviews"] else []
         }
 
         return recipe_data
