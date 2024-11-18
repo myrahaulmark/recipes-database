@@ -365,14 +365,13 @@ def fetch_recipe(recipe_id):
             r.Servings,
             r.ImageURL,
             GROUP_CONCAT(DISTINCT i.Ingredients, ', ') AS Ingredients,
-            GROUP_CONCAT(DISTINCT ins.Instructions, '||') AS Instructions,
-            GROUP_CONCAT(DISTINCT u.FirstName || ' ' || u.LastName || ': ' || rv.ReviewText || ' (Rating: ' || rv.Rating || ')', '||') AS Reviews
+            GROUP_CONCAT(ins.Instructions, '||') AS Instructions,
+            GROUP_CONCAT(DISTINCT rv.ReviewText || ' (Rating: ' || rv.Rating || ')', '||') AS Reviews
         FROM Recipes r
         LEFT JOIN Recipe_Ingredients_fact_table rif ON r.RecipeID = rif.RecipeID
         LEFT JOIN Ingredients i ON rif.IngredientsID = i.IngredientsID
         LEFT JOIN Instructions ins ON r.RecipeID = ins.RecipeID
         LEFT JOIN Reviews rv ON r.RecipeID = rv.RecipeID
-        LEFT JOIN Users u ON rv.UserID = u.UserID
         WHERE r.RecipeID = ?
         GROUP BY r.RecipeID;
         """
