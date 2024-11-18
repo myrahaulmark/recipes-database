@@ -369,7 +369,7 @@ def fetch_recipe(recipe_id):
             GROUP_CONCAT(u.FirstName || ' ' || u.LastName || ': ' || rv.ReviewText || ' (Rating: ' || rv.Rating || ')', '||') AS Reviews
         FROM Recipes r
         LEFT JOIN Recipe_Ingredients_fact_table rif ON r.RecipeID = rif.RecipeID
-        LEFT JOIN Ingredients i ON rif.IngredientID = i.IngredientID
+        LEFT JOIN Ingredients i ON rif.IngredientsID = i.IngredientsID
         LEFT JOIN Instructions ins ON r.RecipeID = ins.RecipeID
         LEFT JOIN Reviews rv ON r.RecipeID = rv.RecipeID
         LEFT JOIN Users u ON rv.UserID = u.UserID
