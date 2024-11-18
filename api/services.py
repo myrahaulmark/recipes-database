@@ -1,3 +1,4 @@
+from multiprocessing.resource_tracker import getfd
 import sqlite3
 from api.models import User, Category, Recipe, Ingredient, RecipeCategoryFact, RecipeIngredientsFact, Review, Instruction
 from typing import List
@@ -355,7 +356,6 @@ def fetch_recipe(recipe_id):
     Fetch a specific recipe by RecipeID, including ingredients, instructions, and reviews.
     """
     try:
-        # SQL query to fetch the recipe details, ingredients, instructions, and reviews
         query = """
         SELECT
             r.RecipeID,
@@ -377,15 +377,16 @@ def fetch_recipe(recipe_id):
         WHERE r.RecipeID = ?
         GROUP BY r.RecipeID;
         """
-        connection = get_db_connection() 
-        cursor = connection.cursor()
-        connection.close()
+        with get_db_connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(query, (recipe_id,))
+            recipe = cursor.fetchone()
 
-
+        # Check if the query returned data
         if not recipe:
             return None
 
-        # Convert the result into a dictionary
+        # Ensure `recipe` is correctly assigned and formatted
         recipe_data = {
             "RecipeID": recipe[0],
             "RecipeName": recipe[1],
@@ -401,4 +402,6 @@ def fetch_recipe(recipe_id):
         return recipe_data
 
     except Exception as e:
+        # Explicitly log the error for debugging
         raise RuntimeError(f"Error fetching recipe: {e}")
+
