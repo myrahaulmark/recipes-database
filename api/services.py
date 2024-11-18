@@ -364,16 +364,19 @@ def fetch_recipe(recipe_id):
             r.CookingTime,
             r.Servings,
             r.ImageURL,
-            GROUP_CONCAT(DISTINCT i.Ingredients, ', ') AS Ingredients,
-            GROUP_CONCAT(ins.Instructions, '||') AS Instructions,
-            GROUP_CONCAT(DISTINCT rv.ReviewText || ' (Rating: ' || rv.Rating || ')', '||') AS Reviews
+            (SELECT GROUP_CONCAT(DISTINCT i.Ingredients, ', ')
+             FROM Recipe_Ingredients_fact_table rif
+             JOIN Ingredients i ON rif.IngredientsID = i.IngredientsID
+             WHERE rif.RecipeID = r.RecipeID) AS Ingredients,
+            (SELECT GROUP_CONCAT(ins.Instructions, '||')
+             FROM Instructions ins
+             WHERE ins.RecipeID = r.RecipeID) AS Instructions,
+            (SELECT GROUP_CONCAT(DISTINCT u.FirstName || ' ' || u.LastName || ': ' || rv.ReviewText || ' (Rating: ' || rv.Rating || ')', '||')
+             FROM Reviews rv
+             JOIN Users u ON rv.UserID = u.UserID
+             WHERE rv.RecipeID = r.RecipeID) AS Reviews
         FROM Recipes r
-        LEFT JOIN Recipe_Ingredients_fact_table rif ON r.RecipeID = rif.RecipeID
-        LEFT JOIN Ingredients i ON rif.IngredientsID = i.IngredientsID
-        LEFT JOIN Instructions ins ON r.RecipeID = ins.RecipeID
-        LEFT JOIN Reviews rv ON r.RecipeID = rv.RecipeID
-        WHERE r.RecipeID = ?
-        GROUP BY r.RecipeID;
+        WHERE r.RecipeID = ?;
         """
         with get_db_connection() as connection:
             cursor = connection.cursor()
