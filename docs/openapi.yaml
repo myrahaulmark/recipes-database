@@ -324,7 +324,7 @@ paths:
                 properties:
                   RecipeID:
                     type: integer
-                  RecipeName:
+                  Title:
                     type: string
                   Description:
                     type: string

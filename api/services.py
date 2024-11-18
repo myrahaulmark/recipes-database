@@ -359,7 +359,7 @@ def fetch_recipe(recipe_id):
         query = """
         SELECT
             r.RecipeID,
-            r.RecipeName,
+            r.Title,
             r.Description,
             r.CookingTime,
             r.Servings,
@@ -386,7 +386,7 @@ def fetch_recipe(recipe_id):
 
         recipe_data = {
             "RecipeID": recipe["RecipeID"],
-            "RecipeName": recipe["RecipeName"],
+            "RecipeName": recipe["Title"],
             "Description": recipe["Description"],
             "CookingTime": recipe["CookingTime"],
             "Servings": recipe["Servings"],
