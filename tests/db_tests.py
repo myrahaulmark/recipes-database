@@ -5,7 +5,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Import the necessary modules from api.services
-from api.services import fetch_recipe, get_categories, get_recipe_count_by_category, get_all_users
+from api.services import fetch_recipe, get_categories, get_recipe_count_by_category, get_all_users, search_appetizers_by_title
 
 def get_categories_test():
     categories = get_categories()
@@ -63,10 +63,30 @@ def fetch_recipes_test(recipe_id):
         print(f"Error during testing: {e}")
 
 
+
+#test search for appetizer by keyword
+def test_search_appetizers_by_title():
+    """
+    Test the search_appetizers_by_title function with a sample keyword.
+    """
+    # Sample keyword to search
+    keyword = "cheese"
+
+    # Perform the search
+    results = search_appetizers_by_title(keyword)
+
+    # Print the results
+    print(f"Search results for keyword '{keyword}':")
+    for recipe in results:
+        print(f"RecipeID: {recipe['RecipeID']}, Title: {recipe['Title']}, ImageURL: {recipe['ImageURL']}")
+
 # Call the test functions
 if __name__ == "__main__":
     get_recipe_count_by_category_test()
     get_categories_test()
 
 if __name__ == "__main__":
-    fetch_recipes_test(3000000)  # Replace with a valid RecipeID from your test_db    
+    fetch_recipes_test(3000000)  # Replace with a valid RecipeID from your test_db 
+
+if __name__ == "__main__":
+    test_search_appetizers_by_title()

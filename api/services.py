@@ -404,3 +404,38 @@ def fetch_recipe(recipe_id):
 
     except Exception as e:
         raise RuntimeError(f"Error fetching recipe: {e}")
+
+# Get an appetizer recipe by a keyword in the title
+def search_appetizers_by_title(keyword):
+    """
+    Searches for appetizer recipes based on a keyword in the title.
+
+    Args:
+        keyword (str): The search term provided by the user.
+
+    Returns:
+        list: A list of dictionaries containing RecipeID, Title, and ImageURL.
+    """
+    query = """
+    SELECT 
+        r.RecipeID, 
+        r.Title, 
+        r.ImageURL 
+    FROM 
+        Recipes r
+    JOIN 
+        Category_Recipe_fact_table rcft ON r.RecipeID = rcft.RecipeID
+    JOIN 
+        Categories c ON rcft.CategoryID = c.CategoryID
+    WHERE 
+        c.CategoryName = 'Appetizers'
+        AND r.Title LIKE ?
+    LIMIT 5;
+    """
+    keyword_pattern = f"%{keyword}%"  # Add wildcard for partial matching
+    connection = get_db_connection()
+    results = connection.execute(query, (keyword_pattern,)).fetchall()
+    connection.close()
+
+    # Convert the results to a list of dictionaries
+    return [{"RecipeID": row["RecipeID"], "Title": row["Title"], "ImageURL": row["ImageURL"]} for row in results]
