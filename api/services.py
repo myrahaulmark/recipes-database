@@ -365,9 +365,8 @@ def fetch_recipe(recipe_id):
             r.Servings,
             r.ImageURL,
             GROUP_CONCAT(i.Ingredients, ', ') AS Ingredients,
-            GROUP_CONCAT(ins.Instructions ORDER BY ins.StepCount ASC SEPARATOR '||') AS Instructions,
-            GROUP_CONCAT(CONCAT(u.FirstName, ' ', u.LastName, ': ', rv.ReviewText, ' (Rating: ', rv.Rating, ')')
-                         ORDER BY rv.ReviewDate DESC SEPARATOR '||') AS Reviews
+            GROUP_CONCAT(ins.Instructions, '||') AS Instructions,
+            GROUP_CONCAT(u.FirstName || ' ' || u.LastName || ': ' || rv.ReviewText || ' (Rating: ' || rv.Rating || ')', '||') AS Reviews
         FROM Recipes r
         LEFT JOIN Recipe_Ingredients_fact_table rif ON r.RecipeID = rif.RecipeID
         LEFT JOIN Ingredients i ON rif.IngredientID = i.IngredientID
@@ -382,26 +381,22 @@ def fetch_recipe(recipe_id):
             cursor.execute(query, (recipe_id,))
             recipe = cursor.fetchone()
 
-        # Check if the query returned data
         if not recipe:
             return None
 
-        # Ensure `recipe` is correctly assigned and formatted
         recipe_data = {
-            "RecipeID": recipe[0],
-            "RecipeName": recipe[1],
-            "Description": recipe[2],
-            "CookingTime": recipe[3],
-            "Servings": recipe[4],
-            "ImageURL": recipe[5],
-            "Ingredients": recipe[6].split(', ') if recipe[6] else [],
-            "Instructions": recipe[7].split('||') if recipe[7] else [],
-            "Reviews": recipe[8].split('||') if recipe[8] else []
+            "RecipeID": recipe["RecipeID"],
+            "RecipeName": recipe["RecipeName"],
+            "Description": recipe["Description"],
+            "CookingTime": recipe["CookingTime"],
+            "Servings": recipe["Servings"],
+            "ImageURL": recipe["ImageURL"],
+            "Ingredients": recipe["Ingredients"].split(', ') if recipe["Ingredients"] else [],
+            "Instructions": recipe["Instructions"].split('||') if recipe["Instructions"] else [],
+            "Reviews": recipe["Reviews"].split('||') if recipe["Reviews"] else []
         }
 
         return recipe_data
 
     except Exception as e:
-        # Explicitly log the error for debugging
         raise RuntimeError(f"Error fetching recipe: {e}")
-
