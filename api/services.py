@@ -377,9 +377,10 @@ def fetch_recipe(recipe_id):
         WHERE r.RecipeID = ?
         GROUP BY r.RecipeID;
         """
-        cursor = db.connection.cursor()
-        cursor.execute(query, (recipe_id,))
-        recipe = cursor.fetchone()
+        connection = get_db_connection() 
+        cursor = connection.cursor()
+        connection.close()
+
 
         if not recipe:
             return None
