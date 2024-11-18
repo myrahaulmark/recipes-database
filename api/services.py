@@ -323,20 +323,28 @@ def get_instructions_by_recipe_title(recipe_title):
     connection = get_db_connection()
     cursor = connection.cursor()
     
-    # SQL query to join tables and fetch necessary fields
-    cursor.execute("""
-        SELECT I.StepCount,
-               I.Instructions
-        FROM Instructions I
-        LEFT JOIN Recipes R on I.RecipeID = R.RecipeID
-        WHERE R.Title = ?
-    """, (recipe_title,))
+    try:
+        # SQL query to join tables and fetch necessary fields
+        cursor.execute("""
+            SELECT I.StepCount,
+                   I.Instructions
+            FROM Instructions I
+            LEFT JOIN Recipes R on I.RecipeID = R.RecipeID
+            WHERE R.Title = ?
+        """, (recipe_title,))
+        
+        # Fetch results and format them as a list of dictionaries
+        instructions = [
+            {"StepCount": row["StepCount"], "Instruction": row["Instruction"]}
+            for row in cursor.fetchall()
+        ]
+        
+        if not instructions:
+            raise IndexError("No instructions found for this recipe.")
+        
+    except IndexError as e:
+        return {"message": str(e)}
+    finally:
+        connection.close()
     
-    # Fetch results and format them as a list of dictionaries
-    instructions = [
-        {"StepCount": row["StepCount"], "Instruction": row["Instruction"]}
-        for row in cursor.fetchall()
-    ]
-    
-    connection.close()
     return instructions
