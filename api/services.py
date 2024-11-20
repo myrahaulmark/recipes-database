@@ -459,9 +459,9 @@ def search_recipes_by_ingredients(keywords):
     query = f"""
     SELECT DISTINCT r.RecipeID, r.Title, r.ImageURL
     FROM Recipes r
-    JOIN RECIPE_INGREDIENTS_fact_table rif ON r.RecipeID = rif.RecipeID
+    JOIN Recipe_Ingredients_fact_table rif ON r.RecipeID = rif.RecipeID
     JOIN Ingredients i ON rif.IngredientsID = i.IngredientsID
-    WHERE i.Ingredients IN ({placeholders})
+    WHERE LOWER(i.Ingredients) IN (LOWER(?), LOWER(?), LOWER(?))
     GROUP BY r.RecipeID
     HAVING COUNT(DISTINCT i.Ingredients) = ?
     LIMIT 5;
