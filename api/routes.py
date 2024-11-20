@@ -224,6 +224,27 @@ def get_ingredients_for_recipe(recipe_id):
     else:
         return jsonify({"message": "No ingredients found for this recipe"}), 404
 
+
+ # searching for recipes with a group of keywords
+ @api_bp.route('/recipes/search-by-ingredients', methods=['GET'])
+def search_recipes_by_ingredients_route():
+    """
+    API endpoint to search recipes by ingredients.
+    """
+    try:
+        ingredients = request.args.getlist('ingredients')  # Get keywords as a list from query parameters
+        if not ingredients:
+            return jsonify({"error": "At least one ingredient is required"}), 400
+
+        results = services.search_recipes_by_ingredients(ingredients)
+        if not results:
+            return jsonify({"message": "No matching recipes found"}), 404
+
+        return jsonify({"recipes": results}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # ---------------------------------------------------------
 # Instructions
 # ---------------------------------------------------------\

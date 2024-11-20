@@ -510,3 +510,74 @@ paths:
                   error:
                     type: string
                     example: Internal server error
+
+
+  /recipes/search-by-ingredients:
+    get:
+      summary: Search Recipes by Ingredients
+      description: >
+        Fetch a list of recipes that match all the specified ingredients.
+        Returns recipes with RecipeID, Title, and ImageURL.
+      parameters:
+        - name: ingredients
+          in: query
+          description: List of ingredients to search for.
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+            example: ["chicken", "cheese", "milk"]
+      responses:
+        '200':
+          description: A list of matching recipes.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recipes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        RecipeID:
+                          type: integer
+                          description: The ID of the recipe.
+                        Title:
+                          type: string
+                          description: The title of the recipe.
+                        ImageURL:
+                          type: string
+                          format: uri
+                          description: A URL pointing to an image of the recipe.
+        '400':
+          description: At least one ingredient was not provided.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: At least one ingredient is required
+        '404':
+          description: No matching recipes found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: No matching recipes found
+        '500':
+          description: An error occurred while processing the request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error

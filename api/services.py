@@ -439,3 +439,35 @@ def search_appetizers_by_title(keyword):
 
     # Convert the results to a list of dictionaries
     return [{"RecipeID": row["RecipeID"], "Title": row["Title"], "ImageURL": row["ImageURL"]} for row in results]
+
+
+# Search for recipes with a group of keywords
+def search_recipes_by_ingredients(keywords):
+    """
+    Searches recipes that contain all the specified ingredients.
+
+    Args:
+        keywords (list): A list of ingredient keywords to search for.
+
+    Returns:
+        list: A list of dictionaries with RecipeID, Title, and ImageURL.
+    """
+    if not keywords:
+        return []
+
+    placeholders = ', '.join('?' for _ in keywords)  # Generate placeholders for the IN clause
+    query = f"""
+    SELECT DISTINCT r.RecipeID, r.Title, r.ImageURL
+    FROM Recipes r
+    JOIN RECIPE_INGREDIENTS_fact_table rif ON r.RecipeID = rif.RecipeID
+    JOIN Ingredients i ON rif.IngredientsID = i.IngredientsID
+    WHERE i.Ingredients IN ({placeholders})
+    GROUP BY r.RecipeID
+    HAVING COUNT(DISTINCT i.Ingredients) = ?
+    LIMIT 5;
+    """
+    connection = get_db_connection()
+    results = connection.execute(query, (*keywords, len(keywords))).fetchall()
+    connection.close()
+
+    return [{"RecipeID": row["RecipeID"], "Title": row["Title"], "ImageURL": row["ImageURL"]} for row in results]
