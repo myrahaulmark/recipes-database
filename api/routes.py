@@ -229,20 +229,25 @@ def get_ingredients_for_recipe(recipe_id):
 @api_bp.route('/recipes/search-by-ingredients', methods=['GET'])
 def search_recipes_by_ingredients_route():
     """
-    API endpoint to search recipes by ingredients.
+    API endpoint to search for recipes by ingredients with partial matches.
     """
     try:
-        ingredients = request.args.getlist('ingredients')  # Get keywords as a list from query parameters
-        if not ingredients:
-            return jsonify({"error": "At least one ingredient is required"}), 400
+        ingredients = request.args.getlist('ingredients')  # Get the list of ingredients
+        if not ingredients or len(ingredients) < 2:
+            return jsonify({"error": "Please provide at least 2 ingredients."}), 400
 
-        results = services.search_recipes_by_ingredients(ingredients)
+        # Allow recipes that match at least 2 of the provided ingredients
+        min_matches = max(len(ingredients) - 1, 2)
+
+        results = services.search_recipes_by_ingredients(ingredients, min_matches=min_matches)
         if not results:
-            return jsonify({"message": "No matching recipes found"}), 404
+            return jsonify({"message": "No matching recipes found."}), 404
 
         return jsonify({"recipes": results}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
 
 
 # ---------------------------------------------------------

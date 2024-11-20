@@ -442,12 +442,14 @@ def search_appetizers_by_title(keyword):
 
 
 # Search for recipes with a group of keywords
-def search_recipes_by_ingredients(keywords):
+def search_recipes_by_ingredients(keywords, limit=5, min_matches=2):
     """
-    Searches recipes that contain all the specified ingredients.
+    Searches recipes that contain at least a minimum number of the specified ingredients.
 
     Args:
         keywords (list): A list of ingredient keywords to search for.
+        limit (int): The maximum number of results to return.
+        min_matches (int): The minimum number of ingredients that must match.
 
     Returns:
         list: A list of dictionaries with RecipeID, Title, and ImageURL.
@@ -455,7 +457,7 @@ def search_recipes_by_ingredients(keywords):
     if not keywords:
         return []
 
-    placeholders = ', '.join('?' for _ in keywords)  # Generate placeholders for the IN clause
+    placeholders = ', '.join('?' for _ in keywords)  # Create placeholders dynamically
     query = f"""
     SELECT DISTINCT r.RecipeID, r.Title, r.ImageURL
     FROM Recipes r
@@ -463,11 +465,12 @@ def search_recipes_by_ingredients(keywords):
     JOIN Ingredients i ON rif.IngredientsID = i.IngredientsID
     WHERE LOWER(i.Ingredients) IN (LOWER(?), LOWER(?), LOWER(?))
     GROUP BY r.RecipeID
-    HAVING COUNT(DISTINCT i.Ingredients) = ?
-    LIMIT 5;
+    HAVING COUNT(DISTINCT i.Ingredients) >= ?
+    LIMIT ?;
     """
+
     connection = get_db_connection()
-    results = connection.execute(query, (*keywords, len(keywords))).fetchall()
+    results = connection.execute(query, (*keywords, min_matches, limit)).fetchall()
     connection.close()
 
     return [{"RecipeID": row["RecipeID"], "Title": row["Title"], "ImageURL": row["ImageURL"]} for row in results]

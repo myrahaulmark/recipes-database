@@ -5,7 +5,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Import the necessary modules from api.services
-from api.services import fetch_recipe, get_categories, get_recipe_count_by_category, get_all_users, search_appetizers_by_title
+from api.services import fetch_recipe, get_categories, get_recipe_count_by_category, get_all_users, search_appetizers_by_title, search_recipes_by_ingredients
 
 def get_categories_test():
     categories = get_categories()
@@ -80,6 +80,28 @@ def test_search_appetizers_by_title():
     for recipe in results:
         print(f"RecipeID: {recipe['RecipeID']}, Title: {recipe['Title']}, ImageURL: {recipe['ImageURL']}")
 
+
+
+def test_search_recipes_by_ingredients():
+    """
+    Test the `search_recipes_by_ingredients` function with known ingredients.
+    """
+    print("Testing search_recipes_by_ingredients...")
+
+    # Define test keywords (ingredients)
+    test_keywords = ['salt', 'onion', 'pepper']
+
+    # Call the function
+    results = search_recipes_by_ingredients(test_keywords, limit=5)
+
+    # Print the results
+    print(f"Search keywords: {test_keywords}")
+    print("Results:")
+    for recipe in results:
+        print(f"RecipeID: {recipe['RecipeID']}, Title: {recipe['Title']}, ImageURL: {recipe['ImageURL']}")
+
+
+
 # Call the test functions
 if __name__ == "__main__":
     get_recipe_count_by_category_test()
@@ -90,3 +112,6 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     test_search_appetizers_by_title()
+
+if __name__ == "__main__":
+    test_search_recipes_by_ingredients()
