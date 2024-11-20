@@ -26,13 +26,10 @@ def get_limited_recipes(limit=10):
     cursor.execute("SELECT * FROM Recipes LIMIT ?", (limit,))
     return cursor.fetchall()
 
-# ---------------------------------------------------------
-# Related to Categories
-# ---------------------------------------------------------
+
 # Get all categories
 import sqlite3
 from typing import List, Dict
-
 def get_categories() -> List[Dict]:
     """
     Retrieves all categories from the database.
@@ -54,7 +51,176 @@ def get_categories() -> List[Dict]:
 
     return categories
 
-# Get recipes in Appetizers with ingredients, instructions and reviews
+# Query the Review table for reviews matching the given RecipeID
+
+def get_reviews_for_recipe(recipe_id: int):
+    """
+    Retrieves all reviews for a given recipe by RecipeID.
+    """
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    # Fetch reviews for the given RecipeID
+    cursor.execute("SELECT * FROM Reviews WHERE RecipeID = ?", (recipe_id,))
+    reviews = cursor.fetchall()
+    connection.close()
+    
+    return reviews
+
+#Number of recipes available in each category
+def get_recipe_count_by_category():
+    """
+    Retrieves the count of recipes in each category.
+    """
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    # Execute the query to count recipes by category
+    cursor.execute("""
+        SELECT Categories.CategoryName, COUNT(Recipes.RecipeID) AS recipe_count
+        FROM Recipes
+        JOIN Category_Recipe_fact_table ON Recipes.RecipeID = Category_Recipe_fact_table.RecipeID
+        JOIN Categories ON Category_Recipe_fact_table.CategoryID = Categories.CategoryID
+        GROUP BY Categories.CategoryName;
+    """)
+    results = cursor.fetchall()
+    connection.close()
+
+    return results
+
+#getting ingredients for a recipe
+def get_ingredients_with_amounts_by_recipe_id(recipe_id):
+    """
+    Retrieves a list of ingredients 
+    
+    Args:
+        recipe_id (int): The ID of the recipe.
+    
+    Returns:
+        list: A list of dictionaries each containing ingredient details.
+    """
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    # SQL query to join tables and fetch necessary fields
+    cursor.execute("""
+        SELECT i.Ingredients AS Ingredient, i.IngredientsId
+        FROM Recipe_Ingredients_fact_table ri
+        JOIN Ingredients i ON ri.IngredientsID = i.IngredientsId
+        WHERE ri.RecipeId = ?
+    """, (recipe_id,))
+    
+    # Fetch results and format them as a list of dictionaries
+    ingredients = [
+        {"Ingredient": row["Ingredient"], "IngredientsId": row["IngredientsId"]}
+        for row in cursor.fetchall()
+    ]
+    
+    connection.close()
+    return ingredients
+
+def get_instructions_by_recipe_title(recipe_title):
+    """
+    Retrieves a list of instructions 
+    
+    Args:
+        recipe_title (str): The title of the recipe.
+    
+    Returns:
+        list: A list of dictionaries each containing instruction details.
+    """
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    try:
+        # SQL query to join tables and fetch necessary fields
+        cursor.execute("""
+            SELECT I.StepCount,
+                   I.Instructions
+            FROM Instructions I
+            LEFT JOIN Recipes R on I.RecipeID = R.RecipeID
+            WHERE R.Title = ?
+        """, (recipe_title,))
+        
+        # Fetch results and format them as a list of dictionaries
+        instructions = [
+            {"StepCount": row["StepCount"], "Instruction": row["Instruction"]}
+            for row in cursor.fetchall()
+        ]
+        
+        if not instructions:
+            raise IndexError("No instructions found for this recipe.")
+        
+    except IndexError as e:
+        return {"message": str(e)}
+    finally:
+        connection.close()
+    
+    return instructions
+# ---------------------------------------------------------
+# ---------------------------------------------------------
+# ---------------------------------------------------------
+# FRONTEND QUERIES USED
+# ---------------------------------------------------------
+# ---------------------------------------------------------
+# ---------------------------------------------------------
+# Get ingredients, instructions, reviews and ratings for a recipe ID - to be used for single recipe view pages
+def fetch_recipe(recipe_id):
+    """
+    Fetch a specific recipe by RecipeID, including ingredients, instructions, and reviews.
+    Deduplicate the ingredients, instructions, and reviews after fetching.
+    """
+    try:
+        query = """
+        SELECT
+            r.RecipeID,
+            r.Title,
+            r.Description,
+            r.CookingTime,
+            r.Servings,
+            r.ImageURL,
+            (SELECT GROUP_CONCAT(i.Ingredients, ', ')
+             FROM Recipe_Ingredients_fact_table rif
+             JOIN Ingredients i ON rif.IngredientsID = i.IngredientsID
+             WHERE rif.RecipeID = r.RecipeID) AS Ingredients,
+            (SELECT GROUP_CONCAT(ins.Instructions, '||')
+             FROM Instructions ins
+             WHERE ins.RecipeID = r.RecipeID) AS Instructions,
+            (SELECT GROUP_CONCAT(u.FirstName || ' ' || u.LastName || ': ' || rv.ReviewText || ' (Rating: ' || rv.Rating || ')', '||')
+             FROM Reviews rv
+             JOIN Users u ON rv.UserID = u.UserID
+             WHERE rv.RecipeID = r.RecipeID) AS Reviews
+        FROM Recipes r
+        WHERE r.RecipeID = ?;
+        """
+        with get_db_connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(query, (recipe_id,))
+            recipe = cursor.fetchone()
+
+        if not recipe:
+            return None
+
+        # Convert the result to a dictionary
+        recipe_data = {
+            "RecipeID": recipe["RecipeID"],
+            "Title": recipe["Title"],
+            "Description": recipe["Description"],
+            "CookingTime": recipe["CookingTime"],
+            "Servings": recipe["Servings"],
+            "ImageURL": recipe["ImageURL"],
+            "Ingredients": list(set(recipe["Ingredients"].split(', '))) if recipe["Ingredients"] else [],
+            "Instructions": list(set(recipe["Instructions"].split('||'))) if recipe["Instructions"] else [],
+            "Reviews": list(set(recipe["Reviews"].split('||'))) if recipe["Reviews"] else []
+        }
+
+        return recipe_data
+
+    except Exception as e:
+        raise RuntimeError(f"Error fetching recipe: {e}")
+    
+
+# Get recipes in Appetizers with ingredients, instructions and reviews - to be used in the random generator section
 def get_random_appetizer_recipes(limit=6):
     """
     Fetches up to `limit` random recipes from the 'Appetizers' category.
@@ -98,42 +264,6 @@ def get_random_appetizer_recipes(limit=6):
     return recipes
 
     
-# # Query the Review table for reviews matching the given RecipeID
-
-def get_reviews_for_recipe(recipe_id: int):
-    """
-    Retrieves all reviews for a given recipe by RecipeID.
-    """
-    connection = get_db_connection()
-    cursor = connection.cursor()
-    
-    # Fetch reviews for the given RecipeID
-    cursor.execute("SELECT * FROM Reviews WHERE RecipeID = ?", (recipe_id,))
-    reviews = cursor.fetchall()
-    connection.close()
-    
-    return reviews
-
-#Number of recipes available in each category
-def get_recipe_count_by_category():
-    """
-    Retrieves the count of recipes in each category.
-    """
-    connection = get_db_connection()
-    cursor = connection.cursor()
-
-    # Execute the query to count recipes by category
-    cursor.execute("""
-        SELECT Categories.CategoryName, COUNT(Recipes.RecipeID) AS recipe_count
-        FROM Recipes
-        JOIN Category_Recipe_fact_table ON Recipes.RecipeID = Category_Recipe_fact_table.RecipeID
-        JOIN Categories ON Category_Recipe_fact_table.CategoryID = Categories.CategoryID
-        GROUP BY Categories.CategoryName;
-    """)
-    results = cursor.fetchall()
-    connection.close()
-
-    return results
 
 # Get all users
 def get_all_users():
@@ -280,132 +410,7 @@ def update_user_by_id(user_id, first_name, last_name, email):
 
     return row_count > 0
 
-#getting ingredients for a recipe
-def get_ingredients_with_amounts_by_recipe_id(recipe_id):
-    """
-    Retrieves a list of ingredients 
-    
-    Args:
-        recipe_id (int): The ID of the recipe.
-    
-    Returns:
-        list: A list of dictionaries each containing ingredient details.
-    """
-    connection = get_db_connection()
-    cursor = connection.cursor()
-    
-    # SQL query to join tables and fetch necessary fields
-    cursor.execute("""
-        SELECT i.Ingredients AS Ingredient, i.IngredientsId
-        FROM Recipe_Ingredients_fact_table ri
-        JOIN Ingredients i ON ri.IngredientsID = i.IngredientsId
-        WHERE ri.RecipeId = ?
-    """, (recipe_id,))
-    
-    # Fetch results and format them as a list of dictionaries
-    ingredients = [
-        {"Ingredient": row["Ingredient"], "IngredientsId": row["IngredientsId"]}
-        for row in cursor.fetchall()
-    ]
-    
-    connection.close()
-    return ingredients
-
-def get_instructions_by_recipe_title(recipe_title):
-    """
-    Retrieves a list of instructions 
-    
-    Args:
-        recipe_title (str): The title of the recipe.
-    
-    Returns:
-        list: A list of dictionaries each containing instruction details.
-    """
-    connection = get_db_connection()
-    cursor = connection.cursor()
-    
-    try:
-        # SQL query to join tables and fetch necessary fields
-        cursor.execute("""
-            SELECT I.StepCount,
-                   I.Instructions
-            FROM Instructions I
-            LEFT JOIN Recipes R on I.RecipeID = R.RecipeID
-            WHERE R.Title = ?
-        """, (recipe_title,))
-        
-        # Fetch results and format them as a list of dictionaries
-        instructions = [
-            {"StepCount": row["StepCount"], "Instruction": row["Instruction"]}
-            for row in cursor.fetchall()
-        ]
-        
-        if not instructions:
-            raise IndexError("No instructions found for this recipe.")
-        
-    except IndexError as e:
-        return {"message": str(e)}
-    finally:
-        connection.close()
-    
-    return instructions
-
-# Get ingredients, instructions, reviews and ratings for a recipe ID
-def fetch_recipe(recipe_id):
-    """
-    Fetch a specific recipe by RecipeID, including ingredients, instructions, and reviews.
-    Deduplicate the ingredients, instructions, and reviews after fetching.
-    """
-    try:
-        query = """
-        SELECT
-            r.RecipeID,
-            r.Title,
-            r.Description,
-            r.CookingTime,
-            r.Servings,
-            r.ImageURL,
-            (SELECT GROUP_CONCAT(i.Ingredients, ', ')
-             FROM Recipe_Ingredients_fact_table rif
-             JOIN Ingredients i ON rif.IngredientsID = i.IngredientsID
-             WHERE rif.RecipeID = r.RecipeID) AS Ingredients,
-            (SELECT GROUP_CONCAT(ins.Instructions, '||')
-             FROM Instructions ins
-             WHERE ins.RecipeID = r.RecipeID) AS Instructions,
-            (SELECT GROUP_CONCAT(u.FirstName || ' ' || u.LastName || ': ' || rv.ReviewText || ' (Rating: ' || rv.Rating || ')', '||')
-             FROM Reviews rv
-             JOIN Users u ON rv.UserID = u.UserID
-             WHERE rv.RecipeID = r.RecipeID) AS Reviews
-        FROM Recipes r
-        WHERE r.RecipeID = ?;
-        """
-        with get_db_connection() as connection:
-            cursor = connection.cursor()
-            cursor.execute(query, (recipe_id,))
-            recipe = cursor.fetchone()
-
-        if not recipe:
-            return None
-
-        # Convert the result to a dictionary
-        recipe_data = {
-            "RecipeID": recipe["RecipeID"],
-            "Title": recipe["Title"],
-            "Description": recipe["Description"],
-            "CookingTime": recipe["CookingTime"],
-            "Servings": recipe["Servings"],
-            "ImageURL": recipe["ImageURL"],
-            "Ingredients": list(set(recipe["Ingredients"].split(', '))) if recipe["Ingredients"] else [],
-            "Instructions": list(set(recipe["Instructions"].split('||'))) if recipe["Instructions"] else [],
-            "Reviews": list(set(recipe["Reviews"].split('||'))) if recipe["Reviews"] else []
-        }
-
-        return recipe_data
-
-    except Exception as e:
-        raise RuntimeError(f"Error fetching recipe: {e}")
-
-# Get an appetizer recipe by a keyword in the title
+# Get an appetizer recipe by a keyword in the title - to be copied for other categories and used for search bar
 def search_appetizers_by_title(keyword):
     """
     Searches for appetizer recipes based on a keyword in the title.
@@ -441,7 +446,7 @@ def search_appetizers_by_title(keyword):
     return [{"RecipeID": row["RecipeID"], "Title": row["Title"], "ImageURL": row["ImageURL"]} for row in results]
 
 
-# Search for recipes with a group of keywords
+# Search for recipes with a group of keywords - to be used on a page for search_by_ingredients 
 def search_recipes_by_ingredients(keywords, limit=5, min_matches=2):
     """
     Searches recipes that contain at least a minimum number of the specified ingredients.
