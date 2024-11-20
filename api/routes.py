@@ -226,7 +226,7 @@ def get_ingredients_for_recipe(recipe_id):
 
 
  # searching for recipes with a group of keywords
- @api_bp.route('/recipes/search-by-ingredients', methods=['GET'])
+@api_bp.route('/recipes/search-by-ingredients', methods=['GET'])
 def search_recipes_by_ingredients_route():
     """
     API endpoint to search recipes by ingredients.
