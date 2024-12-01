@@ -212,6 +212,29 @@ def search_appetizers_route():
         # Handle unexpected errors and return an error message
         return jsonify({"error": str(e)}), 500
 
+# Getting a soup recipe by keyword search in title
+@api_bp.route('/recipes/soups/search', methods=['GET'])
+def search_appetizers_route():
+    """
+    API endpoint to search for soups by keyword in the title.
+    """
+    try:
+        # Retrieve the keyword from the query string
+        keyword = request.args.get('q')
+        if not keyword:
+            return jsonify({"error": "Keyword is required"}), 400
+
+        # Call the search function
+        results = services.search_appetizers_by_title(keyword)
+        if not results:  # If no results are found
+            return jsonify({"message": "No matching soup recipes found"}), 404
+
+        # Return the results in JSON format
+        return jsonify({"recipes": results}), 200
+
+    except Exception as e:
+        # Handle unexpected errors and return an error message
+        return jsonify({"error": str(e)}), 500
 
 # ---------------------------------------------------------
 # Ingredients

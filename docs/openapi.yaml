@@ -511,6 +511,73 @@ paths:
                     type: string
                     example: Internal server error
 
+ /recipes/soups/search:
+    get:
+      summary: Search soups by Keyword
+      description: >
+        Fetch a list of soup recipes by searching for a keyword in their titles.
+        Returns up to 5 matching results, including recipe ID, title, and image URL.
+      parameters:
+        - name: q
+          in: query
+          description: The keyword to search for in soup titles.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of matching soup recipes.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recipes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        RecipeID:
+                          type: integer
+                          description: The ID of the recipe.
+                        Title:
+                          type: string
+                          description: The title of the recipe.
+                        ImageURL:
+                          type: string
+                          format: uri
+                          description: A URL pointing to an image of the recipe.
+        '400':
+          description: A required keyword was not provided.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Keyword is required
+        '404':
+          description: No matching soup recipes found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: No matching soup recipes found
+        '500':
+          description: An error occurred while processing the request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+
 
   /recipes/search-by-ingredients:
     get:
