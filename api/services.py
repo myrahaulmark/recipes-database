@@ -220,7 +220,7 @@ def fetch_recipe(recipe_id):
         raise RuntimeError(f"Error fetching recipe: {e}")
     
 
-# Get recipes in Appetizers with ingredients, instructions and reviews - to be used in the random generator section
+# Get random recipes in Appetizers with ingredients, instructions and reviews - to be used in the random generator section
 def get_random_appetizer_recipes(limit=6):
     """
     Fetches up to `limit` random recipes from the 'Appetizers' category.
@@ -263,7 +263,7 @@ def get_random_appetizer_recipes(limit=6):
         })
     return recipes
 
-# Get recipes in soups with ingredients, instructions and reviews - to be used in the random generator section
+# Get random recipes in soups with ingredients, instructions and reviews - to be used in the random generator section
 def get_random_soup_recipes(limit=6):
     """
     Fetches up to `limit` random recipes from the 'Soups' category.
@@ -305,7 +305,49 @@ def get_random_soup_recipes(limit=6):
             "ImageURL": row[5]
         })
     return recipes
-    
+  
+# Get random recipes in desserts with ingredients, instructions and reviews - to be used in the random generator section
+def get_random_dessert_recipes(limit=6):
+    """
+    Fetches up to `limit` random recipes from the 'Desserts' category.
+    """
+    query = """
+        SELECT 
+            r.RecipeID,
+            r.Title AS RecipeName,
+            r.Description,
+            r.CookingTime,
+            r.Servings,
+            r.ImageURL
+        FROM 
+            Recipes r
+        LEFT JOIN 
+            Category_Recipe_fact_table rcft ON r.RecipeID = rcft.RecipeID
+        LEFT JOIN 
+            Categories c ON rcft.CategoryID = c.CategoryID
+        WHERE 
+            c.CategoryName = 'Desserts'
+        ORDER BY RANDOM()
+        LIMIT ?;
+    """
+    connection = get_db_connection() 
+    cursor = connection.cursor()
+    cursor.execute(query, (limit,))
+    rows = cursor.fetchall()
+    connection.close()
+
+    # Convert the rows into a structured JSON response
+    recipes = []
+    for row in rows:
+        recipes.append({
+            "RecipeID": row[0],
+            "RecipeName": row[1],
+            "Description": row[2],
+            "CookingTime": row[3],
+            "Servings": row[4],
+            "ImageURL": row[5]
+        })
+    return recipes 
 
 # Get all users
 def get_all_users():
