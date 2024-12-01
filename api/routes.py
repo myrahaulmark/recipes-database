@@ -214,7 +214,7 @@ def search_appetizers_route():
 
 # Getting a soup recipe by keyword search in title
 @api_bp.route('/recipes/soups/search', methods=['GET'])
-def search_appetizers_route():
+def search_soups_route():
     """
     API endpoint to search for soups by keyword in the title.
     """
