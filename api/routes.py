@@ -344,21 +344,14 @@ from api.services import add_recipe_with_details
 @api_bp.route('/recipes/add', methods=['POST'])
 def add_recipe_route():
     try:
+        # Parse JSON data from the request body
         data = request.get_json()
-        if not data:
-            return jsonify({"error": "Invalid input, JSON data required"}), 400
+        print("Received data:", data)  # Debugging: log the received data
 
-        # Add recipe with details
-        recipe_id = services.add_recipe_with_details(
-            title=data["Title"],
-            description=data.get("Description", ""),
-            cooking_time=data["CookingTime"],
-            servings=data["Servings"],
-            ingredients=data["Ingredients"],
-            instructions=data["Instructions"]
-        )
-        return jsonify({"message": "Recipe added successfully", "RecipeID": recipe_id}), 201
-
+        # Call the function with the entire data dictionary
+        recipe_id = add_recipe_with_details(data)
+        return jsonify({"message": "Recipe added successfully", "recipe_id": recipe_id}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 

@@ -647,21 +647,21 @@ def add_recipe_with_details(data):
             INSERT INTO Recipes (Title, Description, CookingTime, Servings, NumberOfSteps, NumberOfIngredients)
             VALUES (?, ?, ?, ?, ?, ?)
         """, (
-            data["Title"], 
-            data["Description"], 
-            data["CookingTime"], 
-            data["Servings"], 
-            len(data["Instructions"]), 
-            len(data["Ingredients"])
+            data.get("Title", ""), 
+            data.get("Description", ""), 
+            data.get("CookingTime", 0), 
+            data.get("Servings", 0), 
+            len(data.get("Instructions", [])), 
+            len(data.get("Ingredients", []))
         ))
         recipe_id = cursor.lastrowid
 
         # Add ingredients to the Ingredients table
-        for ingredient in data["Ingredients"]:
+        for ingredient in data.get("Ingredients", []):
             cursor.execute("""
                 INSERT INTO Ingredients (Ingredients)
                 VALUES (?)
-            """, (ingredient["name"],))
+            """, (ingredient.get("name", ""),))
             ingredient_id = cursor.lastrowid
 
             # Link recipe and ingredient
@@ -671,7 +671,7 @@ def add_recipe_with_details(data):
             """, (recipe_id, ingredient_id))
 
         # Add instructions to the Instructions table
-        for step_count, instruction in enumerate(data["Instructions"], start=1):
+        for step_count, instruction in enumerate(data.get("Instructions", []), start=1):
             cursor.execute("""
                 INSERT INTO Instructions (RecipeID, StepCount, Instructions)
                 VALUES (?, ?, ?)
