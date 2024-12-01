@@ -225,7 +225,7 @@ def search_soups_route():
             return jsonify({"error": "Keyword is required"}), 400
 
         # Call the search function
-        results = services.search_appetizers_by_title(keyword)
+        results = services.search_soups_by_title(keyword)
         if not results:  # If no results are found
             return jsonify({"message": "No matching soup recipes found"}), 404
 
