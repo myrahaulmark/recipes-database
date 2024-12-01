@@ -333,3 +333,26 @@ def get_instructions_by_recipe_title(recipe_title):
         return jsonify(instructions), 200 
     else: 
         return jsonify({"message": "No instructions found for this recipe"}), 404
+    
+
+# ---------------------------------------------------------
+# ADDING A RECIPE FOR FRONTEND APP
+# ---------------------------------------------------------
+from flask import request, jsonify
+from api.services import add_recipe_with_details
+
+@api_bp.route('/recipes/add', methods=['POST'])
+def add_recipe_route():
+    """
+    API endpoint to add a recipe with details.
+    """
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Invalid or missing JSON data"}), 400
+
+        recipe_id = add_recipe_with_details(data)
+        return jsonify({"message": "Recipe added successfully", "RecipeID": recipe_id}), 201
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

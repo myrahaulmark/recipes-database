@@ -632,3 +632,57 @@ def search_recipes_by_ingredients(keywords, limit=5, min_matches=2):
     connection.close()
 
     return [{"RecipeID": row["RecipeID"], "Title": row["Title"], "ImageURL": row["ImageURL"]} for row in results]
+
+#SUBMIT OR ADD A NEW RECIPE
+def add_recipe_with_details(data):
+    """
+    Adds a recipe to the database along with its ingredients and instructions.
+    """
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Add recipe to the Recipes table
+        cursor.execute("""
+            INSERT INTO Recipes (Title, Description, CookingTime, Servings, NumberOfSteps, NumberOfIngredients)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            data["Title"], 
+            data["Description"], 
+            data["CookingTime"], 
+            data["Servings"], 
+            len(data["Instructions"]), 
+            len(data["Ingredients"])
+        ))
+        recipe_id = cursor.lastrowid
+
+        # Add ingredients to the Ingredients table
+        for ingredient in data["Ingredients"]:
+            cursor.execute("""
+                INSERT INTO Ingredients (Ingredients)
+                VALUES (?)
+            """, (ingredient["name"],))
+            ingredient_id = cursor.lastrowid
+
+            # Link recipe and ingredient
+            cursor.execute("""
+                INSERT INTO Recipe_Ingredients_fact_table (RecipeID, IngredientsID)
+                VALUES (?, ?)
+            """, (recipe_id, ingredient_id))
+
+        # Add instructions to the Instructions table
+        for step_count, instruction in enumerate(data["Instructions"], start=1):
+            cursor.execute("""
+                INSERT INTO Instructions (RecipeID, StepCount, Instructions)
+                VALUES (?, ?, ?)
+            """, (recipe_id, step_count, instruction))
+
+        connection.commit()
+        return recipe_id
+
+    except Exception as e:
+        connection.rollback()
+        raise e
+
+    finally:
+        connection.close()
