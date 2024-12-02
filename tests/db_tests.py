@@ -5,7 +5,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Import the necessary modules from api.services
-from api.services import get_categories, get_recipe_count_by_category, get_all_users
+from api.services import fetch_recipe, get_categories, get_recipe_count_by_category, get_all_users, search_appetizers_by_title, search_recipes_by_ingredients
 
 def get_categories_test():
     categories = get_categories()
@@ -30,6 +30,75 @@ def get_all_users_test():
     else:
         print("No users found or there was an issue retrieving data.")
 
+def fetch_recipes_test(recipe_id):
+    """
+    Test the fetch_recipe function with the test database.
+    Prints the recipe details for the given RecipeID.
+    """
+    try:
+        # Fetch recipe using the provided RecipeID
+        recipe = fetch_recipe(3000000)
+        
+        if recipe:
+            print("Recipe Details:")
+            print(f"RecipeID: {recipe['RecipeID']}")
+            print(f"Title: {recipe['Title']}")
+            print(f"Description: {recipe['Description']}")
+            print(f"Cooking Time: {recipe['CookingTime']} minutes")
+            print(f"Servings: {recipe['Servings']}")
+            print(f"Image URL: {recipe['ImageURL']}")
+            print("\nIngredients:")
+            for ingredient in recipe['Ingredients']:
+                print(f"- {ingredient}")
+            print("\nInstructions:")
+            for step in recipe['Instructions']:
+                print(f"- {step}")
+            print("\nReviews:")
+            for review in recipe['Reviews']:
+                print(f"- {review}")
+        else:
+            print(f"No recipe found for RecipeID: {recipe_id}")
+    
+    except Exception as e:
+        print(f"Error during testing: {e}")
+
+
+
+#test search for appetizer by keyword
+def test_search_appetizers_by_title():
+    """
+    Test the search_appetizers_by_title function with a sample keyword.
+    """
+    # Sample keyword to search
+    keyword = "cheese"
+
+    # Perform the search
+    results = search_appetizers_by_title(keyword)
+
+    # Print the results
+    print(f"Search results for keyword '{keyword}':")
+    for recipe in results:
+        print(f"RecipeID: {recipe['RecipeID']}, Title: {recipe['Title']}, ImageURL: {recipe['ImageURL']}")
+
+
+
+def test_search_recipes_by_ingredients():
+    """
+    Test the `search_recipes_by_ingredients` function with known ingredients.
+    """
+    print("Testing search_recipes_by_ingredients...")
+
+    # Define test keywords (ingredients)
+    test_keywords = ['salt', 'onion', 'pepper']
+
+    # Call the function
+    results = search_recipes_by_ingredients(test_keywords, limit=5)
+
+    # Print the results
+    print(f"Search keywords: {test_keywords}")
+    print("Results:")
+    for recipe in results:
+        print(f"RecipeID: {recipe['RecipeID']}, Title: {recipe['Title']}, ImageURL: {recipe['ImageURL']}")
 
 
 
@@ -37,4 +106,12 @@ def get_all_users_test():
 if __name__ == "__main__":
     get_recipe_count_by_category_test()
     get_categories_test()
-    
+
+if __name__ == "__main__":
+    fetch_recipes_test(3000000)  # Replace with a valid RecipeID from your test_db 
+
+if __name__ == "__main__":
+    test_search_appetizers_by_title()
+
+if __name__ == "__main__":
+    test_search_recipes_by_ingredients()

@@ -1,5 +1,4 @@
 # How to use the API
-This document would typically be a README.md in your repository, but since we used the README.md file to explain the three different API implementations, we are going to use this file as example documentation for each API.
 
 ## Basic Flask API
 
@@ -8,109 +7,159 @@ To get started, you'll need to install the dependencies.  You can do this by run
 ```bash
 pip install -r requirements.txt
 ```
-
 ### Running the API
 To run the API, you can run the following command:
 ```bash
 python basic-flask.py
 ```
-
 ### Using the API
 Once the API is running, you can use the following commands to interact with it.
 
-#### Recipes
+# Recipe Database API Documentation
 
-The Recipes endpoint is used to get information about Recipes.  There are two paths that can be used to get information about recipes.  The first is to get all of the Recipes.  The second is to get a specific recipe by id.
-An example of the customer object is:
-```json
-    {
-        "FirstName": "John",
-        "LastName": "Doe",
-        "Company": "Acme, Inc.",
-        "Address": "123 Main St.",
-        "City": "Anytown",
-        "State": "CA",
-        "Country": "USA",
-        "PostalCode": "12345",
-        "Phone": "555-555-5555",
-        "Fax": "555-555-5555",
-        "Email": ""
-    }  
-```
-With the application running in a terminal, you'll need to connect to the application using an endpoint such as web browser or Postman.  The following endpoints are available:
+## API Overview
+This documentation provides the available endpoints for the Recipe Database API.
 
-* http://localhost:5000/customers - GET - Returns a list of all customers
-* http://localhost:5000/customers/{id} - GET - Returns a single customer by id
-* http://localhost:5000/customers - POST - Creates a new customer
-* http://localhost:5000/customers/{id} - DELETE - Deletes a customer by id
-* http://localhost:5000/customers - PUT - Updates a customer
+**Host:** `http://localhost:5000/api`  
+**Version:** `1.0.0`  
 
-## Advanced Flask API
+---
 
-### Getting Started
-To get started, you'll need to install the dependencies.  You can do this by running the following command:
-```bash
-pip install -r requirements.txt
-```
+### Endpoints
 
-### Running the API
-To run the API, you can run the following command:
-```bash
-python advanced-flask.py
-```
+#### Categories
 
-### Using the API
-Once the API is running, you can use the following commands to interact with it.
+- **Retrieve all recipe categories**
+    - **URL:** `/categories`
+    - **Method:** `GET`
+    - **Description:** Fetches all available recipe categories.
+    - **Response:**
+        - `200 OK`: Returns a list of categories.
+        - **Schema:**
+            ```json
+            [
+                {
+                    "CategoryID": 1,
+                    "CategoryName": "Italian"
+                }
+            ]
+            ```
 
-#### Customers
-The customers endpoint is used to get information about customers.  There is only one path in the Advanced Flask API that can be used to get information about customers.  The path is to get all of the customers.  The path is:
+#### Users
 
-https://localhost:5000/customers
+- **Retrieve users filtered by last name**
+    - **URL:** `/users`
+    - **Method:** `GET`
+    - **Description:** Fetches a list of users based on a last name filter.
+    - **Parameters:**
+        - `name` (query, required): The string to filter last names by.  
+          - Example: `Smith`
+        - `starts_with` (query, optional): If `true`, filters users whose last names start with the provided string.
+          - Default: `true`
+    - **Response:**
+        - `200 OK`: Returns a list of users matching the filter criteria.
+        - **Schema:**
+            ```json
+            [
+                {
+                    "UserID": 1,
+                    "FirstName": "John",
+                    "LastName": "Smith",
+                    "Email": "john.smith@example.com"
+                }
+            ]
+            ```
 
-but there are two optional parameters which can be used to filter the results.  The parameters are:
-start - The starting index of the results (default = 0 if not specified)
-limit - The number of results to return (default = 10 if not specified)
+- **Add a new user**
+    - **URL:** `/users`
+    - **Method:** `POST`
+    - **Description:** Adds a new user to the database.
+    - **Request Body:**
+        ```json
+        {
+            "FirstName": "John",
+            "LastName": "Doe",
+            "Email": "johndoe@example.com"
+        }
+        ```
+    - **Response:**
+        - `201 Created`: User created successfully.
 
-So that means that the following paths are also valid:
-* https://localhost:5000/customers?start=0&limit=10
-* https://localhost:5000/customers?start=10&limit=10
-* https://localhost:5000/customers?limit=10
+- **Delete a user**
+    - **URL:** `/users/{UserID}`
+    - **Method:** `DELETE`
+    - **Description:** Deletes a user identified by `UserID`.
+    - **Parameters:**
+        - `UserID` (path, required): The ID of the user to delete.
+    - **Response:**
+        - `200 OK`: User deleted successfully.
+        - `404 Not Found`: User not found.
 
-#### Invoices
-The invoices endpoint is used to get information about invoices.  There is only one path in the Advanced Flask API that can be used to get information about invoices.  The path is to get all of the invoices.  The path is:
+- **Update an existing user**
+    - **URL:** `/users/{UserID}`
+    - **Method:** `PUT`
+    - **Description:** Updates a user's details by UserID.
+    - **Parameters:**
+        - `UserID` (path, required): The ID of the user to update.
+    - **Request Body:**
+        ```json
+        {
+            "FirstName": "John",
+            "LastName": "Doe",
+            "Email": "john.doe@example.com"
+        }
+        ```
+    - **Response:**
+        - `200 OK`: User updated successfully.
+        - `404 Not Found`: User not found.
+        - `400 Bad Request`: Required fields missing in the request body.
 
-https://localhost:5000/invoices
+#### Reviews
 
-but there are two optional parameters which can be used to filter the results.  The parameters are:
-start - The starting index of the results (default = 0 if not specified)
-limit - The number of results to return (default = 10 if not specified)
+- **Retrieve reviews for a specific recipe**
+    - **URL:** `/Reviews/{RecipeID}`
+    - **Method:** `GET`
+    - **Description:** Retrieves review information for a recipe identified by `RecipeID`.
+    - **Parameters:**
+        - `RecipeID` (path, required): The unique identifier of the recipe.
+    - **Response:**
+        - `200 OK`: Returns a list of reviews for the specified recipe.
+        - **Schema:**
+            ```json
+            [
+                {
+                    "ReviewID": 1,
+                    "RecipeID": 101,
+                    "ReviewerName": "Jane Doe",
+                    "ReviewText": "Delicious recipe, easy to follow!",
+                    "Rating": 5,
+                    "ReviewDate": "2023-10-10"
+                }
+            ]
+            ```
+        - `404 Not Found`: No reviews found for the specified RecipeID.
 
-So that means that the following paths are also valid:
-* https://localhost:5000/invoices?start=0&limit=10
-* https://localhost:5000/invoices?start=10&limit=10
-* https://localhost:5000/invoices?limit=10
+#### Ingredients
 
-The result of an invoices request looks like:
-```json
-[
-    {
-        "customerId": 2,
-        "invoiceDate": "2009-01-01 00:00:00",
-        "invoiceId": 1,
-        "invoiceItems": [
-            {
-                "invoiceLineId": 1,
-                "quantity": 1,
-                "trackId": 2,
-                "unitPrice": 0.99
-            },
-            {
-                "invoiceLineId": 2,
-                "quantity": 1,
-                "trackId": 4,
-                "unitPrice": 0.99
-            }
-        ]
-    },
-]
-```
+- **Retrieve ingredients for a specific recipe**
+    - **URL:** `/ingredients/{recipe_id}`
+    - **Method:** `GET`
+    - **Description:** Fetches all ingredients for a given recipe ID.
+    - **Parameters:**
+        - `recipe_id` (path, required): The ID of the recipe to retrieve ingredients for.
+    - **Response:**
+        - `200 OK`: Returns a list of ingredients for the specified recipe.
+        - **Schema:**
+            ```json
+            [
+                {
+                    "Ingredient": "Salt",
+                    "IngredientsId": 101007,
+                    "RecipeName": "Sample Recipe Name"
+                }
+            ]
+            ```
+        - `404 Not Found`: No ingredients found for the specified recipe.
+
+
+

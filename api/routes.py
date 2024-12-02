@@ -2,7 +2,6 @@ from flask import jsonify, request, Blueprint
 import api.services as services
 from api.models import User, Category, Recipe, Ingredient, RecipeCategoryFact, RecipeIngredientsFact, Review, Instruction
 
-
 # Create a Blueprint instance
 # This will allow us to group related routes together. All the routes in this file will be part of the 'api' Blueprint.
 # This means that the routes will be accessible at '/api/' followed by the route path.
@@ -25,7 +24,6 @@ def test_connection():
     """
     services.get_db_connection()
     return jsonify({'message': 'Successfully connected to the API'}), 200
-    return "Connection successful!"
 
 # ---------------------------------------------------------
 # Categories
@@ -39,19 +37,55 @@ def get_categories_endpoint():
     Returns:
         tuple: JSON response containing categories and HTTP status code 200.
     """
-    categories = services.get_categories()  # Call the service function to get categories
+    categories = services.get_categories()
     return jsonify(categories), 200
+
+# GET route to fetch all appetizers at random
+@api_bp.route('/recipes/appetizers/random', methods=['GET'])
+def get_random_appetizer_recipes_route():
+    """
+    API endpoint to fetch up to 6 random appetizer recipes.
+    """
+    try:
+        recipes = services.get_random_appetizer_recipes(limit=6)  # Pass the limit argument here
+        if not recipes:
+            return jsonify({"error": "No recipes found in Appetizers category"}), 404
+        return jsonify({"recipes": recipes}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# GET route to fetch all soups at random
+@api_bp.route('/recipes/soups/random', methods=['GET'])
+def get_random_soup_recipes_route():
+    """
+    API endpoint to fetch up to 6 random soup recipes.
+    """
+    try:
+        recipes = services.get_random_soup_recipes(limit=6)  # Pass the limit argument here
+        if not recipes:
+            return jsonify({"error": "No recipes found in Soups category"}), 404
+        return jsonify({"recipes": recipes}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# GET route to fetch all desserts at random
+@api_bp.route('/recipes/desserts/random', methods=['GET'])
+def get_random_desserts_recipes_route():
+    """
+    API endpoint to fetch up to 6 random soup recipes.
+    """
+    try:
+        recipes = services.get_random_dessert_recipes(limit=6)  # Pass the limit argument here
+        if not recipes:
+            return jsonify({"error": "No recipes found in Soups category"}), 404
+        return jsonify({"recipes": recipes}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # ---------------------------------------------------------
 # Users
 # ---------------------------------------------------------
-
 # GET route to fetch all users with no limit
-from flask import jsonify, request, Blueprint
-import api.services as services
-
-api_bp = Blueprint("api", __name__)
-
 @api_bp.route("/users", methods=["GET"])
 def get_users_endpoint():
     """
@@ -77,7 +111,7 @@ def get_users_endpoint():
     users = services.get_users_by_name(name, starts_with=starts_with)
     return jsonify(users), 200
 
-#Add a user
+# Add a user
 @api_bp.route('/users', methods=['POST'])
 def add_user():
     """
@@ -99,7 +133,7 @@ def add_user():
     )
     return jsonify({"message": "User added successfully", "UserID": user_id}), 201
 
-#Delete a user
+# Delete a user
 @api_bp.route('/users/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     """
@@ -111,7 +145,7 @@ def delete_user(user_id):
     else:
         return jsonify({"error": "User not found"}), 404
 
-#update a user
+# Update a user
 @api_bp.route('/users/<int:UserID>', methods=['PUT'])
 def update_user(UserID):
     data = request.get_json()
@@ -128,17 +162,13 @@ def update_user(UserID):
     else:
         return jsonify({"error": "User not found"}), 404
 
-
-
-
 # ---------------------------------------------------------
 # Reviews
 # ---------------------------------------------------------
-#STILL EDITING
 @api_bp.route('/Reviews/<int:RecipeID>', methods=['GET'])
 def get_reviews_for_recipe(RecipeID):
     """
-    Retrieve Review information for a specific RecipeID.
+    Retrieve review information for a specific RecipeID.
 
     Args:
         RecipeID (int): The unique identifier of the recipe.
@@ -148,19 +178,113 @@ def get_reviews_for_recipe(RecipeID):
             - If the user is found, returns a JSON object with user information and status code 200.
             - If the user is not found, returns a JSON object with an error message and status code 404.
     """
-    
-    # Example: /api/users/1
-    
-    # Using the database services to get the user by ID
     reviews = services.get_reviews_for_recipe(RecipeID)
     if reviews:
         return jsonify([dict(review) for review in reviews]), 200
     return jsonify({'message': 'No reviews found'}), 404
- 
 
 # ---------------------------------------------------------
 # Recipes
 # ---------------------------------------------------------
+@api_bp.route('/recipes/limited', methods=['GET'])
+def get_limited_recipes_endpoint():
+    """
+    Retrieve a limited number of recipes.
+
+    Args:
+        limit (int, optional): The maximum number of recipes to retrieve. Default is 10.
+
+    Returns:
+        tuple: JSON response containing recipes and HTTP status code 200.
+    """
+    limit = request.args.get('limit', default=10, type=int)
+    recipes = services.get_limited_recipes(limit)
+    if recipes:
+        return jsonify([dict(recipe) for recipe in recipes]), 200
+    return jsonify({'message': 'No recipes found'}), 404
+
+# Get the recipe and alll details
+@api_bp.route('/recipes/<int:recipe_id>', methods=['GET'])
+def get_appetizer_recipe(recipe_id):
+    try:
+        recipe = services.fetch_recipe(recipe_id)
+        if not recipe:
+            return jsonify({"error": "Recipe not found"}), 404
+        return jsonify(recipe), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Getting an appetizer recipe by keyword search in title
+@api_bp.route('/recipes/appetizers/search', methods=['GET'])
+def search_appetizers_route():
+    """
+    API endpoint to search for appetizers by keyword in the title.
+    """
+    try:
+        # Retrieve the keyword from the query string
+        keyword = request.args.get('q')
+        if not keyword:
+            return jsonify({"error": "Keyword is required"}), 400
+
+        # Call the search function
+        results = services.search_appetizers_by_title(keyword)
+        if not results:  # If no results are found
+            return jsonify({"message": "No matching appetizers found"}), 404
+
+        # Return the results in JSON format
+        return jsonify({"recipes": results}), 200
+
+    except Exception as e:
+        # Handle unexpected errors and return an error message
+        return jsonify({"error": str(e)}), 500
+
+# Getting a soup recipe by keyword search in title
+@api_bp.route('/recipes/soups/search', methods=['GET'])
+def search_soups_route():
+    """
+    API endpoint to search for soups by keyword in the title.
+    """
+    try:
+        # Retrieve the keyword from the query string
+        keyword = request.args.get('q')
+        if not keyword:
+            return jsonify({"error": "Keyword is required"}), 400
+
+        # Call the search function
+        results = services.search_soups_by_title(keyword)
+        if not results:  # If no results are found
+            return jsonify({"message": "No matching soup recipes found"}), 404
+
+        # Return the results in JSON format
+        return jsonify({"recipes": results}), 200
+
+    except Exception as e:
+        # Handle unexpected errors and return an error message
+        return jsonify({"error": str(e)}), 500
+
+# Getting a dessert recipe by keyword search in title
+@api_bp.route('/recipes/desserts/search', methods=['GET'])
+def search_desserts_route():
+    """
+    API endpoint to search for desserts by keyword in the title.
+    """
+    try:
+        # Retrieve the keyword from the query string
+        keyword = request.args.get('q')
+        if not keyword:
+            return jsonify({"error": "Keyword is required"}), 400
+
+        # Call the search function
+        results = services.search_desserts_by_title(keyword)
+        if not results:  # If no results are found
+            return jsonify({"message": "No matching dessert recipes found"}), 404
+
+        # Return the results in JSON format
+        return jsonify({"recipes": results}), 200
+
+    except Exception as e:
+        # Handle unexpected errors and return an error message
+        return jsonify({"error": str(e)}), 500
 
 # ---------------------------------------------------------
 # Ingredients
@@ -174,9 +298,60 @@ def get_ingredients_for_recipe(recipe_id):
         return jsonify({"message": "No ingredients found for this recipe"}), 404
 
 
+ # searching for recipes with a group of keywords
+@api_bp.route('/recipes/search-by-ingredients', methods=['GET'])
+def search_recipes_by_ingredients_route():
+    """
+    API endpoint to search for recipes by ingredients with partial matches.
+    """
+    try:
+        ingredients = request.args.getlist('ingredients')  # Get the list of ingredients
+        if not ingredients or len(ingredients) < 2:
+            return jsonify({"error": "Please provide at least 2 ingredients."}), 400
+
+        # Allow recipes that match at least 2 of the provided ingredients
+        min_matches = max(len(ingredients) - 1, 2)
+
+        results = services.search_recipes_by_ingredients(ingredients, min_matches=min_matches)
+        if not results:
+            return jsonify({"message": "No matching recipes found."}), 404
+
+        return jsonify({"recipes": results}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 
 # ---------------------------------------------------------
 # Instructions
+# ---------------------------------------------------------\
+@api_bp.route('/instructions/<recipe_title>', methods=['GET']) 
+def get_instructions_by_recipe_title(recipe_title): 
+    instructions = services.get_instructions_by_recipe_title(recipe_title) 
+    if instructions: 
+        return jsonify(instructions), 200 
+    else: 
+        return jsonify({"message": "No instructions found for this recipe"}), 404
+    
+
 # ---------------------------------------------------------
+# ADDING A RECIPE FOR FRONTEND APP
+# ---------------------------------------------------------
+from flask import request, jsonify
+from api.services import add_recipe_with_details
+
+@api_bp.route('/recipes/add', methods=['POST'])
+def add_recipe_route():
+    try:
+        # Parse JSON data from the request body
+        data = request.get_json()
+        print("Received data:", data)  # Debugging: log the received data
+
+        # Call the function with the entire data dictionary
+        recipe_id = add_recipe_with_details(data)
+        return jsonify({"message": "Recipe added successfully", "recipe_id": recipe_id}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 

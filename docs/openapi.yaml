@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   title: Recipe Database API
-  description: API for managing recipes.
+  description: API for managing recipes and related data.
   version: "1.0.0"
 
 host: localhost:5000
@@ -11,17 +11,22 @@ schemes:
 
 tags:
   - name: Categories
-    description: Operations related to categories
+    description: Operations related to categories.
   - name: Users
-    description: Operations related to users
+    description: Operations related to users.
   - name: Reviews
-    description: Operations related to reviews
+    description: Operations related to reviews.
+  - name: Ingredients
+    description: Operations related to ingredients.
+  - name: Recipes
+    description: Operations related to recipes.
+  - name: Instructions
+    description: Operations related to instructions.
 
 paths:
   /categories:
     get:
-      summary: Retrieve all recipe categories
-      description: Fetches all available recipe categories.
+      summary: Retrieve all recipe categories.
       tags:
         - Categories
       responses:
@@ -34,234 +39,178 @@ paths:
               properties:
                 CategoryID:
                   type: integer
-                  example: 1
                 CategoryName:
                   type: string
-                  example: Italian
 
-  /users:
+  /recipes/appetizers/random:
     get:
-      summary: Retrieve users filtered by last name
-      description: Fetches a list of users based on a last name filter.
+      summary: Get Random Appetizer Recipes
+      description: Fetch up to 6 random recipes from the "Appetizers" category.
       tags:
-        - Users
-      parameters:
-        - in: query
-          name: name
-          required: true
-          description: The string to filter last names by.
-          schema:
-            type: string
-            example: Smith
-        - in: query
-          name: starts_with
-          required: false
-          description: If true, filters users whose last names start with the provided string.
-          schema:
-            type: boolean
-            default: true
+        - Recipes
       responses:
         '200':
-          description: A list of users matching the filter criteria.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    UserID:
-                      type: integer
-                      example: 1
-                    FirstName:
-                      type: string
-                      example: John
-                    LastName:
-                      type: string
-                      example: Smith
-                    Email:
-                      type: string
-                      example: john.smith@example.com
-
-    post:
-      summary: Add a new user
-      description: Adds a new user to the database.
-      tags:
-        - Users
-      parameters:
-        - in: body
-          name: user
-          description: The user to create.
+          description: Successful response with up to 6 random appetizer recipes.
           schema:
-            type: object
-            required:
-              - FirstName
-              - LastName
-              - Email
-            properties:
-              FirstName:
-                type: string
-                example: John
-              LastName:
-                type: string
-                example: Doe
-              Email:
-                type: string
-                example: johndoe@example.com
-      responses:
-        '201':
-          description: User created successfully.
-
-  /users/{UserID}:
-    delete:
-      summary: Delete a user
-      description: Deletes a user identified by `UserID`.
-      tags:
-        - Users
-      parameters:
-        - in: path
-          name: UserID
-          required: true
-          description: The ID of the user to delete.
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: User deleted successfully.
+            type: array
+            items:
+              $ref: '#/definitions/Recipe'
         '404':
-          description: User not found.
-
-  
-    put:
-      summary: Update an existing user
-      description: Updates a user's details by UserID.
-      tags:
-        - Users
-      parameters:
-        - in: path
-          name: UserID
-          required: true
-          description: The ID of the user to update.
+          description: No recipes found in Appetizers category.
           schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                FirstName:
-                  type: string
-                  example: "John"
-                LastName:
-                  type: string
-                  example: "Doe"
-                Email:
-                  type: string
-                  example: "john.doe@example.com"
+            $ref: '#/definitions/Error'
+        '500':
+          description: Server error.
+          schema:
+            $ref: '#/definitions/Error'
+
+  /recipes/appetizers/search:
+    get:
+      summary: Search Appetizers by Keyword
+      description: Search for appetizer recipes by a keyword in their titles. Returns up to 5 matching results.
+      tags:
+        - Recipes
+      parameters:
+        - name: q
+          in: query
+          description: Keyword to search for in appetizer titles.
+          required: true
+          type: string
       responses:
         '200':
-          description: User updated successfully.
-        '404':
-          description: User not found.
+          description: A list of matching appetizer recipes.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Recipe'
         '400':
-          description: Required fields missing in the request body.
-
-
-
-
-  /Reviews/{RecipeID}:
-    get:
-      summary: Retrieve reviews for a specific recipe
-      description: Retrieves review information for a recipe identified by `RecipeID`.
-      tags:
-        - Reviews
-      parameters:
-        - in: path
-          name: RecipeID
-          required: true
+          description: A required keyword was not provided.
           schema:
-            type: integer
-          description: The unique identifier of the recipe
-      responses:
-        '200':
-          description: A list of reviews for the specified recipe.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    ReviewID:
-                      type: integer
-                      example: 1
-                    RecipeID:
-                      type: integer
-                      example: 101
-                    ReviewerName:
-                      type: string
-                      example: "Jane Doe"
-                    ReviewText:
-                      type: string
-                      example: "Delicious recipe, easy to follow!"
-                    Rating:
-                      type: integer
-                      example: 5
-                    ReviewDate:
-                      type: string
-                      format: date
-                      example: "2023-10-10"
+            $ref: '#/definitions/Error'
         '404':
-          description: No reviews found for the specified RecipeID.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "No reviews found"
-
-
-  /ingredients/{recipe_id}:
-    get:
-      summary: Retrieve ingredients and amounts for a specific recipe
-      description: Fetches all ingredients and their amounts for a given recipe ID.
-      tags:
-        - Ingredients
-      parameters:
-        - in: path
-          name: recipe_id
-          required: true
-          description: The ID of the recipe to retrieve ingredients for.
+          description: No matching appetizers found.
           schema:
-            type: integer
-            example: 101
+            $ref: '#/definitions/Error'
+        '500':
+          description: Server error.
+          schema:
+            $ref: '#/definitions/Error'
+
+  /recipes/search-by-ingredients:
+    get:
+      summary: Search Recipes by Ingredients
+      description: Fetch recipes that match any of the specified ingredients. Returns a maximum of 5 results.
+      tags:
+        - Recipes
+      parameters:
+        - name: ingredients
+          in: query
+          description: List of ingredients to search for (comma-separated).
+          required: true
+          type: string
+          example: "chicken,cheese,milk"
       responses:
         '200':
-          description: A list of ingredients with their respective amounts for the specified recipe.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    Ingredient:
-                      type: string
-                      example: "Salt"
-                    IngredientsId:
-                      type: integer
-                      example: 101007
-          '404':
-          description: No ingredients found for the specified RecipeID.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "No ingredients found for this recipe"
+          description: A list of matching recipes.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Recipe'
+        '400':
+          description: No ingredients provided.
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: No recipes found for the provided ingredients.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Server error.
+          schema:
+            $ref: '#/definitions/Error'
+
+  /recipes/{recipe_id}:
+    get:
+      summary: Get a specific recipe by ID
+      description: Fetch recipe details, including ingredients, instructions, and reviews, by its RecipeID.
+      tags:
+        - Recipes
+      parameters:
+        - name: recipe_id
+          in: path
+          required: true
+          description: The ID of the recipe to retrieve.
+          type: integer
+      responses:
+        '200':
+          description: Recipe details successfully retrieved.
+          schema:
+            $ref: '#/definitions/RecipeDetails'
+        '404':
+          description: Recipe not found.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Server error.
+          schema:
+            $ref: '#/definitions/Error'
+
+definitions:
+  Recipe:
+    type: object
+    properties:
+      RecipeID:
+        type: integer
+      Title:
+        type: string
+      Description:
+        type: string
+      CookingTime:
+        type: integer
+      Servings:
+        type: integer
+      ImageURL:
+        type: string
+
+  RecipeDetails:
+    type: object
+    properties:
+      RecipeID:
+        type: integer
+      Title:
+        type: string
+      Description:
+        type: string
+      CookingTime:
+        type: integer
+      Servings:
+        type: integer
+      ImageURL:
+        type: string
+      Ingredients:
+        type: array
+        items:
+          type: string
+      Instructions:
+        type: array
+        items:
+          type: string
+      Reviews:
+        type: array
+        items:
+          type: object
+          properties:
+            ReviewID:
+              type: integer
+            Rating:
+              type: integer
+            ReviewText:
+              type: string
+            ReviewDate:
+              type: string
+
+  Error:
+    type: object
+    properties:
+      error:
+        type: string
