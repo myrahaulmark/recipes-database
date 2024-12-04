@@ -112,26 +112,32 @@ def get_users_endpoint():
     return jsonify(users), 200
 
 # Add a user
+from datetime import datetime
+
 @api_bp.route('/users', methods=['POST'])
 def add_user():
     """
     Add a new user to the database.
-    Expects JSON payload with 'FirstName', 'LastName', 'Email', and 'JoinDate'.
+    Expects JSON payload with 'FirstName', 'LastName', and 'Email'.
     """
     data = request.get_json()
 
     # Ensure all required fields are present
-    if not all(field in data for field in ['FirstName', 'LastName', 'Email', 'JoinDate']):
+    if not all(field in data for field in ['FirstName', 'LastName', 'Email']):
         return jsonify({"error": "Missing required fields"}), 400
+
+    # Set the current date as JoinDate
+    join_date = datetime.now().strftime('%Y-%m-%d')
 
     # Add the user to the database using the service function
     user_id = services.add_user(
         first_name=data['FirstName'],
         last_name=data['LastName'],
         email=data['Email'],
-        join_date=data['JoinDate']
+        join_date=join_date  # Use the default join date
     )
     return jsonify({"message": "User added successfully", "UserID": user_id}), 201
+
 
 # Delete a user
 @api_bp.route('/users/<int:user_id>', methods=['DELETE'])
