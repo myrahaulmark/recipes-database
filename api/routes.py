@@ -54,7 +54,33 @@ def get_random_appetizer_recipes_route():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# GET route to fetch all soups at random
+@api_bp.route('/recipes/soups/random', methods=['GET'])
+def get_random_soup_recipes_route():
+    """
+    API endpoint to fetch up to 6 random soup recipes.
+    """
+    try:
+        recipes = services.get_random_soup_recipes(limit=6)  # Pass the limit argument here
+        if not recipes:
+            return jsonify({"error": "No recipes found in Soups category"}), 404
+        return jsonify({"recipes": recipes}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
+# GET route to fetch all desserts at random
+@api_bp.route('/recipes/desserts/random', methods=['GET'])
+def get_random_desserts_recipes_route():
+    """
+    API endpoint to fetch up to 6 random soup recipes.
+    """
+    try:
+        recipes = services.get_random_dessert_recipes(limit=6)  # Pass the limit argument here
+        if not recipes:
+            return jsonify({"error": "No recipes found in Soups category"}), 404
+        return jsonify({"recipes": recipes}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # ---------------------------------------------------------
 # Users
@@ -212,6 +238,53 @@ def search_appetizers_route():
         # Handle unexpected errors and return an error message
         return jsonify({"error": str(e)}), 500
 
+# Getting a soup recipe by keyword search in title
+@api_bp.route('/recipes/soups/search', methods=['GET'])
+def search_soups_route():
+    """
+    API endpoint to search for soups by keyword in the title.
+    """
+    try:
+        # Retrieve the keyword from the query string
+        keyword = request.args.get('q')
+        if not keyword:
+            return jsonify({"error": "Keyword is required"}), 400
+
+        # Call the search function
+        results = services.search_soups_by_title(keyword)
+        if not results:  # If no results are found
+            return jsonify({"message": "No matching soup recipes found"}), 404
+
+        # Return the results in JSON format
+        return jsonify({"recipes": results}), 200
+
+    except Exception as e:
+        # Handle unexpected errors and return an error message
+        return jsonify({"error": str(e)}), 500
+
+# Getting a dessert recipe by keyword search in title
+@api_bp.route('/recipes/desserts/search', methods=['GET'])
+def search_desserts_route():
+    """
+    API endpoint to search for desserts by keyword in the title.
+    """
+    try:
+        # Retrieve the keyword from the query string
+        keyword = request.args.get('q')
+        if not keyword:
+            return jsonify({"error": "Keyword is required"}), 400
+
+        # Call the search function
+        results = services.search_desserts_by_title(keyword)
+        if not results:  # If no results are found
+            return jsonify({"message": "No matching dessert recipes found"}), 404
+
+        # Return the results in JSON format
+        return jsonify({"recipes": results}), 200
+
+    except Exception as e:
+        # Handle unexpected errors and return an error message
+        return jsonify({"error": str(e)}), 500
 
 # ---------------------------------------------------------
 # Ingredients
@@ -260,3 +333,25 @@ def get_instructions_by_recipe_title(recipe_title):
         return jsonify(instructions), 200 
     else: 
         return jsonify({"message": "No instructions found for this recipe"}), 404
+    
+
+# ---------------------------------------------------------
+# ADDING A RECIPE FOR FRONTEND APP
+# ---------------------------------------------------------
+from flask import request, jsonify
+from api.services import add_recipe_with_details
+
+@api_bp.route('/recipes/add', methods=['POST'])
+def add_recipe_route():
+    try:
+        # Parse JSON data from the request body
+        data = request.get_json()
+        print("Received data:", data)  # Debugging: log the received data
+
+        # Call the function with the entire data dictionary
+        recipe_id = add_recipe_with_details(data)
+        return jsonify({"message": "Recipe added successfully", "recipe_id": recipe_id}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+

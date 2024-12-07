@@ -220,7 +220,7 @@ def fetch_recipe(recipe_id):
         raise RuntimeError(f"Error fetching recipe: {e}")
     
 
-# Get recipes in Appetizers with ingredients, instructions and reviews - to be used in the random generator section
+# Get random recipes in Appetizers with ingredients, instructions and reviews - to be used in the random generator section
 def get_random_appetizer_recipes(limit=6):
     """
     Fetches up to `limit` random recipes from the 'Appetizers' category.
@@ -263,7 +263,91 @@ def get_random_appetizer_recipes(limit=6):
         })
     return recipes
 
-    
+# Get random recipes in soups with ingredients, instructions and reviews - to be used in the random generator section
+def get_random_soup_recipes(limit=6):
+    """
+    Fetches up to `limit` random recipes from the 'Soups' category.
+    """
+    query = """
+        SELECT 
+            r.RecipeID,
+            r.Title AS RecipeName,
+            r.Description,
+            r.CookingTime,
+            r.Servings,
+            r.ImageURL
+        FROM 
+            Recipes r
+        LEFT JOIN 
+            Category_Recipe_fact_table rcft ON r.RecipeID = rcft.RecipeID
+        LEFT JOIN 
+            Categories c ON rcft.CategoryID = c.CategoryID
+        WHERE 
+            c.CategoryName = 'Soups'
+        ORDER BY RANDOM()
+        LIMIT ?;
+    """
+    connection = get_db_connection() 
+    cursor = connection.cursor()
+    cursor.execute(query, (limit,))
+    rows = cursor.fetchall()
+    connection.close()
+
+    # Convert the rows into a structured JSON response
+    recipes = []
+    for row in rows:
+        recipes.append({
+            "RecipeID": row[0],
+            "RecipeName": row[1],
+            "Description": row[2],
+            "CookingTime": row[3],
+            "Servings": row[4],
+            "ImageURL": row[5]
+        })
+    return recipes
+  
+# Get random recipes in desserts with ingredients, instructions and reviews - to be used in the random generator section
+def get_random_dessert_recipes(limit=6):
+    """
+    Fetches up to `limit` random recipes from the 'Desserts' category.
+    """
+    query = """
+        SELECT 
+            r.RecipeID,
+            r.Title AS RecipeName,
+            r.Description,
+            r.CookingTime,
+            r.Servings,
+            r.ImageURL
+        FROM 
+            Recipes r
+        LEFT JOIN 
+            Category_Recipe_fact_table rcft ON r.RecipeID = rcft.RecipeID
+        LEFT JOIN 
+            Categories c ON rcft.CategoryID = c.CategoryID
+        WHERE 
+            c.CategoryName = 'Desserts'
+        ORDER BY RANDOM()
+        LIMIT ?;
+    """
+    connection = get_db_connection() 
+    cursor = connection.cursor()
+    cursor.execute(query, (limit,))
+    rows = cursor.fetchall()
+    connection.close()
+
+    # Convert the rows into a structured JSON response
+    recipes = []
+    for row in rows:
+        recipes.append({
+            "RecipeID": row[0],
+            "RecipeName": row[1],
+            "Description": row[2],
+            "CookingTime": row[3],
+            "Servings": row[4],
+            "ImageURL": row[5]
+        })
+    return recipes 
 
 # Get all users
 def get_all_users():
@@ -445,6 +529,75 @@ def search_appetizers_by_title(keyword):
     # Convert the results to a list of dictionaries
     return [{"RecipeID": row["RecipeID"], "Title": row["Title"], "ImageURL": row["ImageURL"]} for row in results]
 
+# Get an soup recipe by a keyword in the title - to be copied for other categories and used for search bar
+def search_soups_by_title(keyword):
+    """
+    Searches for soup recipes based on a keyword in the title.
+
+    Args:
+        keyword (str): The search term provided by the user.
+
+    Returns:
+        list: A list of dictionaries containing RecipeID, Title, and ImageURL.
+    """
+    query = """
+    SELECT 
+        r.RecipeID, 
+        r.Title, 
+        r.ImageURL 
+    FROM 
+        Recipes r
+    JOIN 
+        Category_Recipe_fact_table rcft ON r.RecipeID = rcft.RecipeID
+    JOIN 
+        Categories c ON rcft.CategoryID = c.CategoryID
+    WHERE 
+        c.CategoryName = 'Soups'
+        AND r.Title LIKE ?
+    LIMIT 5;
+    """
+    keyword_pattern = f"%{keyword}%"  # Add wildcard for partial matching
+    connection = get_db_connection()
+    results = connection.execute(query, (keyword_pattern,)).fetchall()
+    connection.close()
+
+    # Convert the results to a list of dictionaries
+    return [{"RecipeID": row["RecipeID"], "Title": row["Title"], "ImageURL": row["ImageURL"]} for row in results]
+
+# Get a dessert recipe by a keyword in the title - to be copied for other categories and used for search bar
+def search_desserts_by_title(keyword):
+    """
+    Searches for dessert recipes based on a keyword in the title.
+
+    Args:
+        keyword (str): The search term provided by the user.
+
+    Returns:
+        list: A list of dictionaries containing RecipeID, Title, and ImageURL.
+    """
+    query = """
+    SELECT 
+        r.RecipeID, 
+        r.Title, 
+        r.ImageURL 
+    FROM 
+        Recipes r
+    JOIN 
+        Category_Recipe_fact_table rcft ON r.RecipeID = rcft.RecipeID
+    JOIN 
+        Categories c ON rcft.CategoryID = c.CategoryID
+    WHERE 
+        c.CategoryName = 'Desserts'
+        AND r.Title LIKE ?
+    LIMIT 5;
+    """
+    keyword_pattern = f"%{keyword}%"  # Add wildcard for partial matching
+    connection = get_db_connection()
+    results = connection.execute(query, (keyword_pattern,)).fetchall()
+    connection.close()
+
+    # Convert the results to a list of dictionaries
+    return [{"RecipeID": row["RecipeID"], "Title": row["Title"], "ImageURL": row["ImageURL"]} for row in results]
 
 # Search for recipes with a group of keywords - to be used on a page for search_by_ingredients 
 def search_recipes_by_ingredients(keywords, limit=5, min_matches=2):
@@ -479,3 +632,57 @@ def search_recipes_by_ingredients(keywords, limit=5, min_matches=2):
     connection.close()
 
     return [{"RecipeID": row["RecipeID"], "Title": row["Title"], "ImageURL": row["ImageURL"]} for row in results]
+
+#SUBMIT OR ADD A NEW RECIPE
+def add_recipe_with_details(data):
+    """
+    Adds a recipe to the database along with its ingredients and instructions.
+    """
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Add recipe to the Recipes table
+        cursor.execute("""
+            INSERT INTO Recipes (Title, Description, CookingTime, Servings, NumberOfSteps, NumberOfIngredients)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            data.get("Title", ""), 
+            data.get("Description", ""), 
+            data.get("CookingTime", 0), 
+            data.get("Servings", 0), 
+            len(data.get("Instructions", [])), 
+            len(data.get("Ingredients", []))
+        ))
+        recipe_id = cursor.lastrowid
+
+        # Add ingredients to the Ingredients table
+        for ingredient in data.get("Ingredients", []):
+            cursor.execute("""
+                INSERT INTO Ingredients (Ingredients)
+                VALUES (?)
+            """, (ingredient.get("name", ""),))
+            ingredient_id = cursor.lastrowid
+
+            # Link recipe and ingredient
+            cursor.execute("""
+                INSERT INTO Recipe_Ingredients_fact_table (RecipeID, IngredientsID)
+                VALUES (?, ?)
+            """, (recipe_id, ingredient_id))
+
+        # Add instructions to the Instructions table
+        for step_count, instruction in enumerate(data.get("Instructions", []), start=1):
+            cursor.execute("""
+                INSERT INTO Instructions (RecipeID, StepCount, Instructions)
+                VALUES (?, ?, ?)
+            """, (recipe_id, step_count, instruction))
+
+        connection.commit()
+        return recipe_id
+
+    except Exception as e:
+        connection.rollback()
+        raise e
+
+    finally:
+        connection.close()
